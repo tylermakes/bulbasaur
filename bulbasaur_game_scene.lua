@@ -42,6 +42,7 @@ function scene:createScene( event )
 	local group = self.view
 	local game = BulbGame(display.contentWidth, display.contentHeight)
 	game:create(group)
+	
 	-- local background = display.newRect( 0, 0, display.contentWidth, display.contentHeight )
 	-- background:setFillColor( 1 )
 	-- background.anchorX = 0;
