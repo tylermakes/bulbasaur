@@ -1,23 +1,23 @@
 require("class")
 
-BulbStoreItem = class(function(c, x, y, width, height, itemType, name, inventory, ui)
+BulbStoreItem = class(function(c, x, y, width, height, item, inventory, ui)
 	c.x = x
 	c.y = y
 	c.width = width
 	c.height = height
-	c.itemType = itemType
+	c.item = item
 	c.ui = ui
-	c.name = name
+	c.name = c.item.tileName
 	c.inventory = inventory
 	c.itemView = nil
 	c.nameView = nil
 	c.inventoryView = nil
-	c.events = {}
+	-- c.events = {}
 end)
 
 function BulbStoreItem:create(group)
 	local itemView = display.newRect( 0, 0, self.width, self.height )
-	itemView:setFillColor( 1/self.itemType, 1/self.itemType, 1/self.itemType )
+	itemView:setFillColor( self.item.color.r, self.item.color.g, self.item.color.b )
 	itemView.anchorX = 0;
 	itemView.anchorY = 0;
 	itemView.x = self.x;
@@ -27,7 +27,7 @@ function BulbStoreItem:create(group)
 
 	-- ADD NAME TEXT
 	local nameViewOptions = {
-		text = self.name,
+		text = self.item.tileName,
 		x = 0,
 		y = 0,
 		width = self.width,
@@ -37,7 +37,7 @@ function BulbStoreItem:create(group)
 		align = "left"
 	}
 	local nameView = display.newText( nameViewOptions )
-	nameView:setFillColor( 1-(1/self.itemType), 1-(1/self.itemType), 1 )
+	nameView:setFillColor( 0, 0, 0 )
 	nameView.anchorX = 0;
 	nameView.anchorY = 0;
 	nameView.x = self.x;
@@ -57,7 +57,7 @@ function BulbStoreItem:create(group)
 		align = "right"
 	}
 	local inventoryView = display.newText( inventoryViewOptions )
-	inventoryView:setFillColor( 1, 1-1/self.itemType, 1-1/self.itemType )
+	inventoryView:setFillColor( 0, 0, 0)
 	inventoryView.anchorX = 0;
 	inventoryView.anchorY = 0;
 	inventoryView.x = self.x;
@@ -80,7 +80,22 @@ function BulbStoreItem:touch(event)
 	if ( event.phase == "began" ) then
 		destination.x = event.x;
 		destination.y = event.y;
-		self.ui:plantingFunction(self.itemType)
+		self.ui:plantingFunction(self.item)
+	end
+end
+
+function BulbStoreItem:removeSelf( )
+	if (self.nameView) then
+		self.nameView:removeSelf()
+		self.nameView = nil
+	end
+	if (self.inventoryView) then
+		self.inventoryView:removeSelf()
+		self.inventoryView = nil
+	end
+	if (self.itemView) then
+		self.itemView:removeSelf()
+		self.itemView = nil
 	end
 end
 

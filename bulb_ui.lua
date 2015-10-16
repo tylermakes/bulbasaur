@@ -1,7 +1,9 @@
 require("class")
 require("bulb_store_item")
+require("bulb_store_tool")
+require("bulb_color")
 
-BulbUI = class(function(c, player, x, y, width, height, itemNumber)
+BulbUI = class(function(c, navigation, player, x, y, width, height, itemNumber)
 	c.x = x
 	c.y = y
 	c.player = player
@@ -10,23 +12,40 @@ BulbUI = class(function(c, player, x, y, width, height, itemNumber)
 	c.itemNumber = itemNumber
 	c.itemHeight = height/itemNumber
 	c.items = nil
+	c.tools = nil
 	c.events = {}
+	c.navigation = navigation
 end)
 
 function BulbUI:create(group)
 	items = {}
-	for i=1, self.itemNumber do
-		local y = self.y + ((i-1) * self.itemHeight)
-		local bulbStoreItem = BulbStoreItem(self.x, y, self.width, self.itemHeight, i,
-								self.player.itemBag[i].name, self.player.itemBag[i].inventory, self)
+	tools = {}
+
+	local homeView = BulbStoreTool(self.x, self.y, self.width, self.itemHeight, self.navigation, self)
+	homeView:create(group)
+	tools[1] = homeView
+
+	local shovel = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
+	local shovelView = BulbStoreTool(self.x, self.y + self.itemHeight, self.width, self.itemHeight, shovel, self)
+	shovelView:create(group)
+	tools[2] = shovelView
+
+	local i = 0
+	for k, v in pairs(self.player.itemBag) do
+		local y = self.y + (i * self.itemHeight) + self.itemHeight*2
+		local item = bulbGameSettings:getItemByName(k)
+		local bulbStoreItem = BulbStoreItem(self.x, y, self.width, self.itemHeight, item,
+								self.player.itemBag[item.tileName].inventory, self)
 		bulbStoreItem:create(group)
-		items[#items + 1] = bulbStoreItem
+		items[k] = bulbStoreItem
+		i = i + 1
 	end
 	self.items = items
-	self.player:addEventListener("itemUsed", self)
+	self.tools = tools
+	self.player:addEventListener("itemUpdated", self)
 end
 
-function BulbUI:itemUsed(event)
+function BulbUI:itemUpdated(event)
 	self.items[event.type]:updateInventory(event.newValue)
 end
 
@@ -45,11 +64,31 @@ function BulbUI:dispatchEvent(data)
 	end
 end
 
-function BulbUI:plantingFunction(itemType)
+function BulbUI:plantingFunction(item)
 	plantEvent = {
 		name = "selectPlant",
-		type = itemType
+		item = item
 	}
 
 	BulbUI.dispatchEvent(self, plantEvent)
+end
+
+function BulbUI:selectTool(type)
+	toolEvent = {
+		name = "selectTool",
+		type = type
+	}
+
+	BulbUI.dispatchEvent(self, toolEvent)
+end
+
+function BulbUI:removeSelf()
+	for i=0, #self.tools do
+		self.tools[i]:removeSelf()
+		self.tools[i] = nil
+	end
+	for k, v in pairs(self.items) do
+		self.items[k]:removeSelf()
+		self.items[k] = nil
+	end
 end

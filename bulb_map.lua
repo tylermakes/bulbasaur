@@ -25,6 +25,15 @@ function BulbMap:create(group)
 	end
 
 	self.tileGroup:addEventListener("touch", self)
+	group:insert(self.tileGroup)
+end
+
+function BulbMap:update()
+	for i=1, #self.layers[1] do
+		for j=1, #self.layers[1][i] do
+			self.layers[1][i][j]:update()
+		end
+	end
 end
 
 function BulbMap:plant(i, j, type)
@@ -32,6 +41,20 @@ function BulbMap:plant(i, j, type)
 	self.layers[1][i][j] = nil
 	self.layers[1][i][j] = BulbTile(i, j, (i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)
 	self.layers[1][i][j]:create(self.tileGroup, type)
+end
+
+function BulbMap:canPlant(i, j, type)
+	return self.layers[1][i][j].type == nil
+end
+
+function BulbMap:canHarvest(i, j)
+	return self.layers[1][i][j].state == "harvestable"
+end
+
+function BulbMap:harvest(i, j)
+	local plantType = self.layers[1][i][j].type
+	self:plant(i, j, nil)
+	return plantType
 end
 
 function BulbMap:isNewGridTouch( i, j )
