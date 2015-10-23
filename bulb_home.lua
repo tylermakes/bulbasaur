@@ -2,6 +2,7 @@ require("class")
 require("bulb_map")
 require("bulb_ui")
 require("bulb_player")
+require("bulb_living_room")
 
 BulbHome = class(function(c, width, height, storyboard)
 	c.width = width
@@ -22,6 +23,9 @@ function BulbHome:create(group)
 
 	self.player = BulbPlayer()
 
+	self.livingRoom = BulbLivingRoom(mapWidth, self.height)
+	self.livingRoom:create(group)
+
 	local garden = {tileName="garden", color=BulbColor(0.8, 0.4, 1)}
 	self.ui = BulbUI(garden, self.player, mapWidth, 0, self.width/5, self.height, 10)
 	self.ui:addEventListener("selectPlant", self)
@@ -36,6 +40,7 @@ function BulbHome:enterFrame()
 end
 
 function BulbHome:update()
+	self.livingRoom:update()
 end
 
 function BulbHome:selectPlant(data)
@@ -53,4 +58,8 @@ function BulbHome:selectTool(data)
 end
 
 function BulbHome:removeSelf()
+	if (self.livingRoom) then
+		self.livingRoom:removeSelf()
+		self.livingRoom = nil
+	end
 end

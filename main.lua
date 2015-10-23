@@ -11,4 +11,5 @@ display.setStatusBar( display.HiddenStatusBar )
 bulbGameSettings = BulbGameSettings()
 
 local storyboard = require "storyboard"
-storyboard.gotoScene( "bulb_game_scene" )
+-- storyboard.gotoScene( "bulb_game_scene" )
+storyboard.gotoScene( "bulb_home_scene" )
