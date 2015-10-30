@@ -1,7 +1,7 @@
 require("class")
-require("bulb_farm_tile")
+require("bulb_forest_tile")
 
-BulbMap = class(function(c, width, height, rows, columns)
+BulbBuilderMap = class(function(c, width, height, rows, columns)
 	c.width = width
 	c.height = height
 	c.rows = rows
@@ -11,15 +11,16 @@ BulbMap = class(function(c, width, height, rows, columns)
 	c.events = {}
 	c.lastTouch = {}
 	c.tileGroup = nil
+	c.mapName = nil
 end)
 
-function BulbMap:create(group)
+function BulbBuilderMap:create(group)
 	self.tileGroup = display.newGroup()
 	self.layers[1] = {}
 	for i=1, self.columns do
 		self.layers[1][i] = {}
 		for j=1, self.rows do
-			self.layers[1][i][j] = BulbFarmTile(i, j, (i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)
+			self.layers[1][i][j] = BulbForestTile(i, j, (i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)
 			self.layers[1][i][j]:create(self.tileGroup)
 		end
 	end
@@ -28,41 +29,27 @@ function BulbMap:create(group)
 	group:insert(self.tileGroup)
 end
 
-function BulbMap:update()
-	for i=1, #self.layers[1] do
-		for j=1, #self.layers[1][i] do
-			self.layers[1][i][j]:update()
-		end
-	end
+function BulbBuilderMap:update()
+	-- for i=1, #self.layers[1] do
+	-- 	for j=1, #self.layers[1][i] do
+	-- 		self.layers[1][i][j]:update()
+	-- 	end
+	-- end
 end
 
-function BulbMap:plant(i, j, type)
+function BulbBuilderMap:placeTile(i, j, tileInfo)
 	self.layers[1][i][j]:removeSelf()
 	self.layers[1][i][j] = nil
-	self.layers[1][i][j] = BulbFarmTile(i, j, (i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)
-	self.layers[1][i][j]:create(self.tileGroup, type)
+	self.layers[1][i][j] = BulbForestTile(i, j, (i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)
+	self.layers[1][i][j]:create(self.tileGroup, tileInfo)
 end
 
-function BulbMap:canPlant(i, j, type)
-	return self.layers[1][i][j].type == nil
-end
-
-function BulbMap:canHarvest(i, j)
-	return self.layers[1][i][j].state == "harvestable"
-end
-
-function BulbMap:harvest(i, j)
-	local plantType = self.layers[1][i][j].type
-	self:plant(i, j, nil)
-	return plantType
-end
-
-function BulbMap:isNewGridTouch( i, j )
+function BulbBuilderMap:isNewGridTouch( i, j )
 	local returnValue = (i ~= self.lastTouch.i) or (j ~= self.lastTouch.j)
 	return returnValue
 end
 
-function BulbMap:touch(event)
+function BulbBuilderMap:touch(event)
 	local i = math.floor(event.x/self.tileSize) + 1
 	local j = math.floor(event.y/self.tileSize) + 1
 	if ( event.phase == "began" or
@@ -73,7 +60,7 @@ function BulbMap:touch(event)
 			j = j
 		}
 		selectTileEvent = {
-			name = "selectTile",
+			name = "placeTile",
 			x = i,
 			y = j
 		}
@@ -81,14 +68,14 @@ function BulbMap:touch(event)
 	end
 end
 
-function BulbMap:addEventListener(type, object)
+function BulbBuilderMap:addEventListener(type, object)
 	if (not self.events[type]) then
 		self.events[type] = {}
 	end
 	self.events[type][#self.events[type] + 1] = object
 end
 
-function BulbMap:dispatchEvent(data)
+function BulbBuilderMap:dispatchEvent(data)
 	if (self.events[data.name]) then
 		for i=1, #self.events[data.name] do
 			self.events[data.name][i][data.name](self.events[data.name][i], data)
@@ -96,7 +83,7 @@ function BulbMap:dispatchEvent(data)
 	end
 end
 
-function BulbMap:removeSelf()
+function BulbBuilderMap:removeSelf()
 	if (self.layers[1]) then
 		for i=1, #self.layers[1] do
 			for j=1, #self.layers[1][i] do

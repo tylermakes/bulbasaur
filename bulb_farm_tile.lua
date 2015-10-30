@@ -1,6 +1,6 @@
 require("class")
 
-BulbTile = class(function(c, i, j, x, y, size)
+BulbFarmTile = class(function(c, i, j, x, y, size)
 	c.i = i
 	c.j = j
 	c.x = x
@@ -13,7 +13,7 @@ BulbTile = class(function(c, i, j, x, y, size)
 	c.state = "dirt"
 end)
 
-function BulbTile:create(group, type)
+function BulbFarmTile:create(group, type)
 	self.type = type
 	local plant = bulbGameSettings.types[type]
 	local tileView = display.newRect( 0, 0, self.size, self.size )
@@ -53,7 +53,7 @@ function BulbTile:create(group, type)
 	end
 end
 
-function BulbTile:update()
+function BulbFarmTile:update()
 	if (self.state == "growing") then
 		if (self.harvestCounter >= 1) then
 			self.harvestCounter = self.harvestCounter - 1
@@ -65,7 +65,7 @@ function BulbTile:update()
 	end
 end
 
-function BulbTile:removeSelf()
+function BulbFarmTile:removeSelf()
 	if (self.tileView) then
 		self.tileView:removeSelf()
 		self.tileView = nil
