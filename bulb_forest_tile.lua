@@ -7,14 +7,11 @@ BulbForestTile = class(function(c, i, j, x, y, size)
 	c.y = y
 	c.size = size
 	c.tileView = nil
-	c.harvestCounter = 0
-	c.harvestCountView = nil
 	c.tileInfo = nil
-	c.state = "dirt"
 end)
 
 function BulbForestTile:create(group, tileInfo)
-	self.tileInfo = tileInfo
+	self.tileInfo = tileInfo or { id=0, tileName="dirt", color=BulbColor(0.8, 0.6, 0) }
 	local tileView = display.newRect( 0, 0, self.size, self.size )
 	tileView:setFillColor( 0.8, 0.6, 0 )
 	
@@ -32,6 +29,10 @@ end
 
 function BulbForestTile:update()
 	
+end
+
+function BulbForestTile:getSaveData()
+	return self.tileInfo
 end
 
 function BulbForestTile:removeSelf()

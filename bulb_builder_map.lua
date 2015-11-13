@@ -29,6 +29,30 @@ function BulbBuilderMap:create(group)
 	group:insert(self.tileGroup)
 end
 
+function BulbBuilderMap:getSaveData()
+	local saveData = {}
+	saveData.mapName = self.mapName
+	saveData.layers = {}
+	saveData.layers[1] = {}
+	for i=1, self.columns do
+		saveData.layers[1][i] = {}
+		for j=1, self.rows do
+			saveData.layers[1][i][j] = self.layers[1][i][j]:getSaveData()
+		end
+	end
+
+	return saveData
+end
+
+function BulbBuilderMap:loadMapFromData( data )
+	self.mapName = data.mapName
+	for i=1, self.columns do
+		for j=1, self.rows do
+			self:placeTile(i, j, data.layers[1][i][j])
+		end
+	end
+end
+
 function BulbBuilderMap:update()
 	-- for i=1, #self.layers[1] do
 	-- 	for j=1, #self.layers[1][i] do

@@ -62,7 +62,7 @@ function BulbBuilderUI:dispatchEvent(data)
 end
 
 function BulbBuilderUI:placingTileFunction(item)
-	placingTileEvent = {
+	local placingTileEvent = {
 		name = "selectTile",
 		item = item
 	}
@@ -71,7 +71,7 @@ function BulbBuilderUI:placingTileFunction(item)
 end
 
 function BulbBuilderUI:selectTool(type)
-	toolEvent = {
+	local toolEvent = {
 		name = "selectTool",
 		type = type
 	}

@@ -58,13 +58,17 @@ function BulbBuilder:selectTool(data)
 	elseif (data.type == "save") then
 		if (not self.map.mapName) then
 			self:clearFilePopup()
-			self.filePopup = BulbFileNamePopup("Enter Save Name:")
+			self.filePopup = BulbFileNamePopup("Enter Save Name:", "saving")
 			self.filePopup:create(self.fullDisplayGroup)
+			self.filePopup:addEventListener("fileName", self)
+			self.filePopup:addEventListener("clearFilePopup", self)
 		end
 	elseif (data.type == "load") then
 		self:clearFilePopup()
-		self.filePopup = BulbFileNamePopup("Enter Load Name:")
+		self.filePopup = BulbFileNamePopup("Enter Load Name:", "loading")
 		self.filePopup:create(self.fullDisplayGroup)
+		self.filePopup:addEventListener("fileName", self)
+		self.filePopup:addEventListener("clearFilePopup", self)
 	else
 		self.state = "tooling"
 		self.selectedTool = data.type
@@ -78,6 +82,31 @@ function BulbBuilder:placeTile(event)
 	end
 end
 
+function BulbBuilder:getSaveData()
+	local saveData = self.map:getSaveData()
+	return saveData
+end
+
+-- called when a filename is selected from our filePopup dialog for saving or loading
+function BulbBuilder:fileName(evt)
+	if (evt.action == "saving") then
+		bulbGameSettings:addMapName(evt.fileName)
+		local saveData = self:getSaveData()
+		saveData.fileName = evt.fileName
+		savingContainer:saveFile(saveData, evt.fileName)
+	elseif (evt.action == "loading") then
+		local loadedData = savingContainer:loadFile(evt.fileName)
+		if (loadedData.failure) then
+			print("FAILED TO LOAD DATA FROM:", evt.fileName)	-- probably filename doesn't exist
+		else
+			self.map:loadMapFromData(loadedData)
+		end
+	else
+		print("unknown action", evt.action, " on filename:", evt.fileName)
+	end
+	self:clearFilePopup();
+end
+
 function BulbBuilder:clearFilePopup()
 	if (self.filePopup) then
 		self.filePopup:removeSelf()
@@ -85,11 +114,16 @@ function BulbBuilder:clearFilePopup()
 	end
 end
 
-function BulbBuilder:removeSelf()
+function BulbBuilder:removeMap()
 	if (self.map) then
 		self.map:removeSelf()
 		self.map = nil
 	end
+end
+
+function BulbBuilder:removeSelf()
+	self:clearFilePopup()
+	self:removeMap()
 	if (self.ui) then
 		self.ui:removeSelf()
 		self.ui = nil
@@ -97,9 +131,5 @@ function BulbBuilder:removeSelf()
 	if (self.fullDisplayGroup) then
 		self.fullDisplayGroup:removeSelf()
 		self.fullDisplayGroup = nil
-	end
-	if (self.filePopup) then
-		self.filePopup:removeSelf()
-		self.filePopup = nil
 	end
 end

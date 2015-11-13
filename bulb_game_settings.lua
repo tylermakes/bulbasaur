@@ -2,6 +2,8 @@ require("class")
 require("bulb_color")
 
 BulbGameSettings = class(function(c)
+	c.mapNames = {}
+
 	local types = {}
 	types["strawberry"] = { id=1, tileName="strawberry", cost=1001, color=BulbColor(1,0,0) }
 	types["orange"] = { id=2, tileName="orange", cost=1002, color=BulbColor(1,0.6,0) }
@@ -35,6 +37,32 @@ BulbGameSettings = class(function(c)
 	
 	c.talking = talking
 end)
+
+function BulbGameSettings:getGameData()
+	return {
+		mapNames = self.mapNames
+	}
+end
+
+function BulbGameSettings:setupFromData(mainData)
+	self.mapNames = mainData.mapNames
+end
+
+function BulbGameSettings:addMapName(name)
+	print("adding", name)
+	local overwriting = false
+	for i=1, #self.mapNames do
+		if (self.mapNames[i] == name) then
+			overwriting = true
+		end
+	end
+	print("overwriting:", name)
+	if (not overwriting) then
+	print("adding:", #self.mapNames + 1, name)
+		self.mapNames[#self.mapNames + 1] = name
+	end
+	savingContainer:save()
+end
 
 function BulbGameSettings:getItemByID(id)
 	for k, v in pairs(self.types) do

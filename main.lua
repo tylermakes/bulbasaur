@@ -12,7 +12,7 @@ display.setStatusBar( display.HiddenStatusBar )
 
 bulbGameSettings = BulbGameSettings()
 bulbBuilderSettings = BulbBuilderSettings()
-savingContainer = SavingContainer()
+savingContainer = SavingContainer(bulbGameSettings)	--param must have :getGameData and :setupFromData
 
 savingContainer:load()
 

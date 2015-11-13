@@ -1,6 +1,6 @@
 require("class")
 
-BulbFileNamePopup = class(function(c, label)
+BulbFileNamePopup = class(function(c, label, action)
 	c.x = 50
 	c.y = 100
 	c.width = 600
@@ -11,6 +11,8 @@ BulbFileNamePopup = class(function(c, label)
 	c.labelView = nil
 	c.acceptButton = nil
 	c.cancelButton = nil
+	c.events = {}
+	c.action = action
 end)
 
 function BulbFileNamePopup:create(group)
@@ -49,15 +51,15 @@ function BulbFileNamePopup:create(group)
 	nameView.y = self.y + 50;
 	self.nameView = nameView
 
-	-- local a = self
-	-- local accept = function(event)
-	-- 	print("accepting!")
-	-- 	a:accept()
-	-- end
-	-- local cancel = function(event)
-	-- 	print("accepting!")
-	-- 	this:accept()
-	-- end
+	local accept = function(event)
+		self:accept()
+		return true
+	end
+
+	local cancel = function(event)
+		self:cancel()
+		return true
+	end
 
 	-- ADD BUTTON FOR ACCEPTING
 	local acceptButton = display.newCircle(0, 0, 25)
@@ -73,8 +75,8 @@ function BulbFileNamePopup:create(group)
 	cancelButton.y = self.y + self.height - 50 - 10
 	self.cancelButton = cancelButton
 
-	-- acceptButton:addEventListener("touch", accept)
-	-- cancelButton:addEventListener("touch", cancel)
+	acceptButton:addEventListener("touch", accept)
+	cancelButton:addEventListener("touch", cancel)
 
 	group:insert(self.itemView)
 	group:insert(self.nameView)
@@ -84,12 +86,21 @@ function BulbFileNamePopup:create(group)
 end
 
 function BulbFileNamePopup:accept()
-	print("accepting2")
-	print("new name:"..self.label)
-	print("new name:"..self.nameView.text)
+	local fileNameEvent = {
+		name = "fileName",
+		fileName = self.nameView.text,
+		action = self.action
+	}
+
+	self:dispatchEvent(fileNameEvent);
 end
 
-function BulbFileNamePopup:accept()
+function BulbFileNamePopup:cancel()
+	local clearFileEvent = {
+		name = "clearFilePopup"
+	}
+
+	self:dispatchEvent(clearFileEvent);
 end
 
 function BulbFileNamePopup:addEventListener(type, object)

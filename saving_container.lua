@@ -1,15 +1,13 @@
 require("class")
 
-SavingContainer = class(function(c)
+SavingContainer = class(function(c, gameSettings)
 	c.json = require("json")
-	local defaultGameData = {}
-	defaultGameData["mapNames"] = {}
-	c.gameData = defaultGameData
+	c.gameSettings = gameSettings
 end)
 
 function SavingContainer:save()
 	print("SAVING?")
-	local currentGameData = {}
+	local currentGameData = self.gameSettings:getGameData();
 
 	local encodedData = self.json.encode(currentGameData)
 	-- print('Saving this: ' .. encodedData)
@@ -42,7 +40,7 @@ function SavingContainer:load()
 
 		if (string.find(reason, "No such file or directory")) then
 
-			contents = self.json.encode(self.gameData)
+			contents = self.json.encode(self.gameSettings:getGameData())
 
 			-- create file because it doesn't exist yet
 			fh = io.open( path, "w" )
@@ -55,7 +53,7 @@ function SavingContainer:load()
 	if (fh) then
 		io.close( fh )
 	end
-	self.gameData = self.json.decode(contents)
+	self.gameSettings:setupFromData(self.json.decode(contents));
 end
 
 function SavingContainer:saveFile(data, fileName, directory)
