@@ -13,8 +13,8 @@ BulbGameSettings = class(function(c)
 	types["carrots"] = { id=6, tileName="carrots", cost=1007, color=BulbColor(1,0.8,0) }
 	types["beets"] = { id=7, tileName="beets", cost=10010, color=BulbColor(0.8,0,.5) }
 	types["peas"] = { id=8, tileName="peas", cost=1009, color=BulbColor(0,0.8,0) }
-	-- types["asparagus"] = { id=7, tileName="asparagus", cost=1008, color=BulbColor(0.3,0.6,0.3) }
-	-- types["pineapple"] = { id=9, tileName="pineapple", cost=1006, color=BulbColor(1,1,0) }
+	types["pineapple"] = { id=9, tileName="pineapple", cost=1006, color=BulbColor(1,1,0) }
+	types["asparagus"] = { id=10, tileName="asparagus", cost=1008, color=BulbColor(0.3,0.6,0.3) }
 	c.types = types
 
 

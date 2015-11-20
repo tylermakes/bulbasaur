@@ -9,6 +9,7 @@ BulbFileNamePopup = class(function(c, label, action)
 	c.itemView = nil
 	c.nameView = nil
 	c.labelView = nil
+	c.filesListView = nil
 	c.acceptButton = nil
 	c.cancelButton = nil
 	c.events = {}
@@ -42,6 +43,30 @@ function BulbFileNamePopup:create(group)
 	labelView.x = self.x + 10;
 	labelView.y = self.y + 10;
 	self.labelView = labelView
+
+	-- ADD MAP FILE LIST
+	local fileListString = ""
+	for i=1, #bulbGameSettings.mapNames do
+		fileListString = fileListString..bulbGameSettings.mapNames[i].."\n"
+	end
+
+	local filesListViewOptions = {
+		text = fileListString,
+		x = 0,
+		y = 0,
+		width = self.width,
+		font = native.systemFont,
+		fontSize = 36, 
+		align = "left"
+	}
+	local filesListView = display.newText( filesListViewOptions )
+	filesListView:setFillColor( 1, 1, 1 )
+	filesListView.anchorX = 0;
+	filesListView.anchorY = 0;
+	filesListView.x = self.x + 10;
+	filesListView.y = self.y + 100;
+	self.filesListView = filesListView
+
 
 	-- ADD NAME TEXT
 	local nameView = native.newTextField( 0, 0, self.width - 20, 50 )
@@ -81,6 +106,7 @@ function BulbFileNamePopup:create(group)
 	group:insert(self.itemView)
 	group:insert(self.nameView)
 	group:insert(self.labelView)
+	group:insert(self.filesListView)
 	group:insert(self.cancelButton)
 	group:insert(self.acceptButton)
 end
@@ -122,6 +148,10 @@ function BulbFileNamePopup:removeSelf()
 	if (self.labelView) then
 		self.labelView:removeSelf()
 		self.labelView = nil
+	end
+	if (self.filesListView) then
+		self.filesListView:removeSelf()
+		self.filesListView = nil
 	end
 	if (self.nameView) then
 		self.nameView:removeSelf()

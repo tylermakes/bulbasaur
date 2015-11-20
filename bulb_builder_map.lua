@@ -61,7 +61,29 @@ function BulbBuilderMap:update()
 	-- end
 end
 
+function BulbBuilderMap:clear()
+	for i=1, self.columns do
+		for j=1, self.rows do
+			self:placeTile(i, j, nil)
+		end
+	end
+end
+
+-- function to handle all special tile types... validate/cleanup
+function BulbBuilderMap:handleSpecialTile(i, j, tileInfo)
+	if (tileInfo and tileInfo.tileName == "player") then
+		for i=1, self.columns do
+			for j=1, self.rows do
+				if (self.layers[1][i][j].tileInfo.tileName == "player") then
+					self:placeTile(i, j, nil)
+				end	
+			end
+		end
+	end
+end
+
 function BulbBuilderMap:placeTile(i, j, tileInfo)
+	self:handleSpecialTile(i, j, tileInfo)
 	self.layers[1][i][j]:removeSelf()
 	self.layers[1][i][j] = nil
 	self.layers[1][i][j] = BulbForestTile(i, j, (i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)

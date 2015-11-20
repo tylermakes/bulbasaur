@@ -2,6 +2,7 @@ require("class")
 require("bulb_builder_store_item")
 require("bulb_store_tool")
 require("bulb_color")
+local widget = require "widget"
 
 BulbBuilderUI = class(function(c, navigation, x, y, width, height, itemNumber)
 	c.x = x
@@ -20,30 +21,49 @@ function BulbBuilderUI:create(group)
 	items = {}
 	tools = {}
 
-	local homeView = BulbStoreTool(self.x, self.y, self.width, self.itemHeight, self.navigation, self)
-	homeView:create(group)
+	local scrollView = widget.newScrollView( {
+			width = self.width,
+			height = self.height,
+			horizontalScrollDisabled = true,
+			isBounceEnabled = false
+		} )
+	scrollView.anchorX = 0
+	scrollView.anchorY = 0
+	scrollView.x = self.x
+	scrollView.y = self.y
+	self.scrollView = scrollView
+
+	local homeView = BulbStoreTool(0, self.y, self.width, self.itemHeight, self.navigation, self)
+	homeView:create(self.scrollView, self.scrollView)
 	tools[1] = homeView
 
 	local save = {tileName="save", color=BulbColor(0.6, 0.6, 0.4)}
-	local saveView = BulbStoreTool(self.x, self.y + self.itemHeight, self.width, self.itemHeight, save, self)
-	saveView:create(group)
+	local saveView = BulbStoreTool(0, self.y + self.itemHeight, self.width, self.itemHeight, save, self)
+	saveView:create(self.scrollView, self.scrollView)
 	tools[2] = saveView
 
 	local load = {tileName="load", color=BulbColor(0.6, 0.4, 0.6)}
-	local loadView = BulbStoreTool(self.x, self.y + self.itemHeight*2, self.width, self.itemHeight, load, self)
-	loadView:create(group)
+	local loadView = BulbStoreTool(0, self.y + self.itemHeight*#tools, self.width, self.itemHeight, load, self)
+	loadView:create(self.scrollView, self.scrollView)
 	tools[3] = loadView
 
+	local clear = {tileName="clear", color=BulbColor(0.2, 0.4, 0.2)}
+	local clearView = BulbStoreTool(0, self.y + self.itemHeight*#tools, self.width, self.itemHeight, clear, self)
+	clearView:create(self.scrollView, self.scrollView)
+	tools[4] = clearView
+
 	for i=1, #bulbBuilderSettings.types do
-		local y = self.y + ((i-1) * self.itemHeight) + self.itemHeight*3
+		local y = self.y + ((i-1) * self.itemHeight) + self.itemHeight*#tools
 		local item = bulbBuilderSettings:getItemById(i)
-		local bulbBuilderStoreItem = BulbBuilderStoreItem(self.x, y, self.width, self.itemHeight, item, self)
-		bulbBuilderStoreItem:create(group)
+		local bulbBuilderStoreItem = BulbBuilderStoreItem(0, y, self.width, self.itemHeight, item, self)
+		bulbBuilderStoreItem:create(self.scrollView, self.scrollView)
 		items[i] = bulbBuilderStoreItem
 		i = i + 1
 	end
 	self.items = items
 	self.tools = tools
+
+	group:insert(self.scrollView)
 end
 
 function BulbBuilderUI:addEventListener(type, object)
@@ -87,5 +107,9 @@ function BulbBuilderUI:removeSelf()
 	for k, v in pairs(self.items) do
 		self.items[k]:removeSelf()
 		self.items[k] = nil
+	end
+	if (self.scrollView) then
+		self.scrollView:removeSelf()
+		self.scrollView = nil
 	end
 end

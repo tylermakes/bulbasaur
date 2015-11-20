@@ -2,6 +2,7 @@ require("class")
 require("bulb_store_item")
 require("bulb_store_tool")
 require("bulb_color")
+local widget = require "widget"
 
 BulbUI = class(function(c, navigation, player, x, y, width, height, itemNumber)
 	c.x = x
@@ -21,22 +22,34 @@ function BulbUI:create(group)
 	items = {}
 	tools = {}
 
-	local homeView = BulbStoreTool(self.x, self.y, self.width, self.itemHeight, self.navigation, self)
-	homeView:create(group)
+	local scrollView = widget.newScrollView( {
+			width = self.width,
+			height = self.height,
+			horizontalScrollDisabled = true,
+			isBounceEnabled = false
+		} )
+	scrollView.anchorX = 0
+	scrollView.anchorY = 0
+	scrollView.x = self.x
+	scrollView.y = self.y
+	self.scrollView = scrollView
+
+	local homeView = BulbStoreTool(0, self.y, self.width, self.itemHeight, self.navigation, self)
+	homeView:create(self.scrollView, self.scrollView)
 	tools[1] = homeView
 
 	local shovel = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
-	local shovelView = BulbStoreTool(self.x, self.y + self.itemHeight, self.width, self.itemHeight, shovel, self)
-	shovelView:create(group)
+	local shovelView = BulbStoreTool(0, self.y + self.itemHeight, self.width, self.itemHeight, shovel, self)
+	shovelView:create(self.scrollView, self.scrollView)
 	tools[2] = shovelView
 
 	local i = 0
 	for k, v in pairs(self.player.itemBag) do
 		local y = self.y + (i * self.itemHeight) + self.itemHeight*2
 		local item = bulbGameSettings:getItemByName(k)
-		local bulbStoreItem = BulbStoreItem(self.x, y, self.width, self.itemHeight, item,
+		local bulbStoreItem = BulbStoreItem(0, y, self.width, self.itemHeight, item,
 								self.player.itemBag[item.tileName].inventory, self)
-		bulbStoreItem:create(group)
+		bulbStoreItem:create(self.scrollView, self.scrollView)
 		items[k] = bulbStoreItem
 		i = i + 1
 	end
@@ -90,5 +103,9 @@ function BulbUI:removeSelf()
 	for k, v in pairs(self.items) do
 		self.items[k]:removeSelf()
 		self.items[k] = nil
+	end
+	if (self.scrollView) then
+		self.scrollView:removeSelf()
+		self.scrollView = nil
 	end
 end

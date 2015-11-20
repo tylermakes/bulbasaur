@@ -11,7 +11,7 @@ BulbForestTile = class(function(c, i, j, x, y, size)
 end)
 
 function BulbForestTile:create(group, tileInfo)
-	self.tileInfo = tileInfo or { id=0, tileName="dirt", color=BulbColor(0.8, 0.6, 0) }
+	self.tileInfo = tileInfo or bulbBuilderSettings.dirtType
 	local tileView = display.newRect( 0, 0, self.size, self.size )
 	tileView:setFillColor( 0.8, 0.6, 0 )
 	

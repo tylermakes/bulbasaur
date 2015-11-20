@@ -69,9 +69,12 @@ function BulbBuilder:selectTool(data)
 		self.filePopup:create(self.fullDisplayGroup)
 		self.filePopup:addEventListener("fileName", self)
 		self.filePopup:addEventListener("clearFilePopup", self)
+	elseif (data.type == "clear") then
+		self.map:clear()
 	else
-		self.state = "tooling"
-		self.selectedTool = data.type
+		print("unknown tool type:", data.type)
+		-- self.state = "tooling"
+		-- self.selectedTool = data.type
 	end
 end
 
