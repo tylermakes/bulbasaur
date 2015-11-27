@@ -14,7 +14,7 @@ local game
 -- Called when the scene's view does not exist:
 function scene:createScene( event )
 	local group = self.view
-	local game = BulbGame(display.contentWidth, display.contentHeight, storyboard)
+	game = BulbGame(display.contentWidth, display.contentHeight, storyboard)
 	game:create(group)
 end
 
@@ -27,7 +27,6 @@ end
 -- Called when scene is about to move offscreen:
 function scene:exitScene( event )
 	local group = self.view
-	
 end
 
 -- If scene's view is removed, scene:destroyScene() will be called just prior to:
@@ -36,6 +35,7 @@ function scene:destroyScene( event )
 
 	if (game) then
 		game:removeSelf()
+		game = nil
 	end
 end
 

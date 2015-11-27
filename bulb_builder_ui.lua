@@ -4,7 +4,7 @@ require("bulb_store_tool")
 require("bulb_color")
 local widget = require "widget"
 
-BulbBuilderUI = class(function(c, navigation, x, y, width, height, itemNumber)
+BulbBuilderUI = class(function(c, toolDefinitions, x, y, width, height, itemNumber)
 	c.x = x
 	c.y = y
 	c.width = width
@@ -14,7 +14,7 @@ BulbBuilderUI = class(function(c, navigation, x, y, width, height, itemNumber)
 	c.items = nil
 	c.tools = nil
 	c.events = {}
-	c.navigation = navigation
+	c.toolDefinitions = toolDefinitions
 end)
 
 function BulbBuilderUI:create(group)
@@ -33,24 +33,13 @@ function BulbBuilderUI:create(group)
 	scrollView.y = self.y
 	self.scrollView = scrollView
 
-	local homeView = BulbStoreTool(0, self.y, self.width, self.itemHeight, self.navigation, self)
-	homeView:create(self.scrollView, self.scrollView)
-	tools[1] = homeView
 
-	local save = {tileName="save", color=BulbColor(0.6, 0.6, 0.4)}
-	local saveView = BulbStoreTool(0, self.y + self.itemHeight, self.width, self.itemHeight, save, self)
-	saveView:create(self.scrollView, self.scrollView)
-	tools[2] = saveView
-
-	local load = {tileName="load", color=BulbColor(0.6, 0.4, 0.6)}
-	local loadView = BulbStoreTool(0, self.y + self.itemHeight*#tools, self.width, self.itemHeight, load, self)
-	loadView:create(self.scrollView, self.scrollView)
-	tools[3] = loadView
-
-	local clear = {tileName="clear", color=BulbColor(0.2, 0.4, 0.2)}
-	local clearView = BulbStoreTool(0, self.y + self.itemHeight*#tools, self.width, self.itemHeight, clear, self)
-	clearView:create(self.scrollView, self.scrollView)
-	tools[4] = clearView
+	for j=1, #self.toolDefinitions do
+		local toolDefinition = self.toolDefinitions[j]
+		local toolView = BulbStoreTool(0, self.y + self.itemHeight*#tools, self.width, self.itemHeight, toolDefinition, self)
+		toolView:create(self.scrollView, self.scrollView)
+		tools[#tools+1] = toolView
+	end
 
 	for i=1, #bulbBuilderSettings.types do
 		local y = self.y + ((i-1) * self.itemHeight) + self.itemHeight*#tools
@@ -100,14 +89,16 @@ function BulbBuilderUI:selectTool(type)
 end
 
 function BulbBuilderUI:removeSelf()
-	for i=0, #self.tools do
+	for i=1, #self.tools do
 		self.tools[i]:removeSelf()
 		self.tools[i] = nil
 	end
+	self.tools = nil
 	for k, v in pairs(self.items) do
 		self.items[k]:removeSelf()
 		self.items[k] = nil
 	end
+	self.items = nil
 	if (self.scrollView) then
 		self.scrollView:removeSelf()
 		self.scrollView = nil

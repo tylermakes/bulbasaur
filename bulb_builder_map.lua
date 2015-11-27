@@ -12,6 +12,7 @@ BulbBuilderMap = class(function(c, width, height, rows, columns)
 	c.lastTouch = {}
 	c.tileGroup = nil
 	c.mapName = nil
+	c.fileName = nil
 end)
 
 function BulbBuilderMap:create(group)
@@ -46,6 +47,7 @@ end
 
 function BulbBuilderMap:loadMapFromData( data )
 	self.mapName = data.mapName
+	self.fileName = data.fileName
 	for i=1, self.columns do
 		for j=1, self.rows do
 			self:placeTile(i, j, data.layers[1][i][j])

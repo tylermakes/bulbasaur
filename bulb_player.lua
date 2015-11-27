@@ -32,11 +32,24 @@ function BulbPlayer:addItem(type, num)
 	self:dispatchEvent(itemUsedEvent)
 end
 
+function BulbPlayer:setLocation()
+end
+
 function BulbPlayer:addEventListener(type, object)
 	if (not self.events[type]) then
 		self.events[type] = {}
 	end
 	self.events[type][#self.events[type] + 1] = object
+end
+
+function BulbPlayer:removeEventListener(type, object)
+	for k, v in pairs(self.events) do
+		for i=1, #v do
+			self.events[k][i] = nil
+		end
+		self.events[k] = nil
+	end
+	self.events = nil
 end
 
 function BulbPlayer:dispatchEvent(data)
@@ -45,4 +58,8 @@ function BulbPlayer:dispatchEvent(data)
 			self.events[data.name][i][data.name](self.events[data.name][i], data)
 		end
 	end
+end
+
+function BulbPlayer:removeSelf( )
+	-- get rid of player!
 end

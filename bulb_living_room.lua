@@ -10,6 +10,7 @@ BulbLivingRoom = class(function(c, width, height)
 end)
 
 function BulbLivingRoom:create(group)
+	print("building LR");
 	self:addCharacter("grandma", 30, 75, 150, 260)
 	self:addCharacter("brother", 670, 55, 100, 235)
 
@@ -97,6 +98,13 @@ function BulbLivingRoom:removeSelf( )
 		self.background:removeSelf()
 		self.background = nil
 	end
+	for i=1, #self.characters do
+		self.characters[i].clickRect:removeEventListener("touch", self.characters[i])
+		self.characters[i].clickRect:removeSelf()
+		self.characters[i].clickRect = nil
+		self.characters[i] = nil
+	end
+	self.characters = nil
 	if (self.rpgTextBox) then
 		self.rpgTextBox:removeSelf()
 		self.rpgTextBox = nil

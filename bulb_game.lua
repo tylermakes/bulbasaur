@@ -27,8 +27,11 @@ function BulbGame:create(group)
 	self.map:create(group)
 	self.map:addEventListener("selectTile", self)
 
-	local home = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
-	self.ui = BulbUI(home, self.player, mapWidth, 0, self.width/5, self.height, 10)
+	local tools = {}
+	tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
+	tools[2] = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
+	
+	self.ui = BulbUI(tools, self.player, mapWidth, 0, self.width/5, self.height, 10)
 	self.ui:addEventListener("selectPlant", self)
 	self.ui:addEventListener("selectTool", self)
 	self.ui:create(group)
@@ -78,13 +81,17 @@ function BulbGame:setPlanting(plantType)
 end
 
 function BulbGame:removeSelf()
+	Runtime:removeEventListener("enterFrame", self)
 	if (self.map) then
 		self.map:removeSelf()
+		self.map = nil
 	end
 	if (self.ui) then
 		self.ui:removeSelf()
+		self.ui = nil
 	end
 	if (self.player) then
 		self.player:removeSelf()
+		self.player = nil
 	end
 end

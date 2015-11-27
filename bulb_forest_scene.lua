@@ -1,4 +1,4 @@
-require("bulb_builder")
+require("bulb_forest")
 
 -----------------------------------------------------------------------------------------
 --
@@ -9,33 +9,49 @@ require("bulb_builder")
 local storyboard = require( "storyboard" )
 local scene = storyboard.newScene()
 
-local builder
+local game
 
 -- Called when the scene's view does not exist:
 function scene:createScene( event )
 	local group = self.view
-	builder = BulbBuilder(display.contentWidth, display.contentHeight, storyboard)
-	builder:create(group)
+	if (not event.params) then
+		event.params = {}
+	end
+	if (not game) then
+		game = BulbForest(display.contentWidth, display.contentHeight, storyboard, event.params.mapFileName)
+		game:create(group)
+	end
 end
 
 -- Called immediately after scene has moved onscreen:
 function scene:enterScene( event )
 	local group = self.view
-	
+	if (not event.params) then
+		event.params = {}
+	end
+	if (not game) then
+		game = BulbForest(display.contentWidth, display.contentHeight, storyboard, event.params.mapFileName)
+		game:create(group)
+	end
 end
 
 -- Called when scene is about to move offscreen:
 function scene:exitScene( event )
 	local group = self.view
+
+	if (game) then
+		game:removeSelf()
+		game = nil
+	end
 end
 
 -- If scene's view is removed, scene:destroyScene() will be called just prior to:
 function scene:destroyScene( event )
 	local group = self.view
 
-	if (builder) then
-		builder:removeSelf()
-		builder = nil
+	if (game) then
+		game:removeSelf()
+		game = nil
 	end
 end
 

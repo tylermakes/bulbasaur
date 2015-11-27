@@ -29,8 +29,13 @@ function BulbBuilder:create(group)
 	self.map:create(self.fullDisplayGroup)
 	self.map:addEventListener("placeTile", self)
 
-	local home = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
-	self.ui = BulbBuilderUI(home, mapWidth, 0, self.width/5, self.height, 10)
+	local tools = {}
+	tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
+	tools[2] = {tileName="save", color=BulbColor(0.6, 0.6, 0.4)}
+	tools[3] = {tileName="load", color=BulbColor(0.6, 0.4, 0.6)}
+	tools[4] = {tileName="clear", color=BulbColor(0.2, 0.4, 0.2)}
+	tools[5] = {tileName="play", color=BulbColor(0.1, 0.5, 0.3)}
+	self.ui = BulbBuilderUI(tools, mapWidth, 0, self.width/5, self.height, 10)
 	self.ui:addEventListener("selectTile", self)
 	self.ui:addEventListener("selectTool", self)
 	self.ui:create(self.fullDisplayGroup)
@@ -71,6 +76,20 @@ function BulbBuilder:selectTool(data)
 		self.filePopup:addEventListener("clearFilePopup", self)
 	elseif (data.type == "clear") then
 		self.map:clear()
+	elseif (data.type == "play") then
+		local saveData = self:getSaveData()
+		savingContainer:saveFile(saveData, "temp")
+
+		local options =
+		{
+			effect = "fade",
+			time = 500,
+			params =
+			{
+				mapFileName = "temp"
+			}
+		}
+		self.storyboard.gotoScene( "bulb_forest_scene", options )
 	else
 		print("unknown tool type:", data.type)
 		-- self.state = "tooling"

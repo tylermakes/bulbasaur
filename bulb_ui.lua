@@ -4,7 +4,7 @@ require("bulb_store_tool")
 require("bulb_color")
 local widget = require "widget"
 
-BulbUI = class(function(c, navigation, player, x, y, width, height, itemNumber)
+BulbUI = class(function(c, toolDefinitions, player, x, y, width, height, itemNumber)
 	c.x = x
 	c.y = y
 	c.player = player
@@ -15,7 +15,7 @@ BulbUI = class(function(c, navigation, player, x, y, width, height, itemNumber)
 	c.items = nil
 	c.tools = nil
 	c.events = {}
-	c.navigation = navigation
+	c.toolDefinitions = toolDefinitions
 end)
 
 function BulbUI:create(group)
@@ -34,18 +34,16 @@ function BulbUI:create(group)
 	scrollView.y = self.y
 	self.scrollView = scrollView
 
-	local homeView = BulbStoreTool(0, self.y, self.width, self.itemHeight, self.navigation, self)
-	homeView:create(self.scrollView, self.scrollView)
-	tools[1] = homeView
-
-	local shovel = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
-	local shovelView = BulbStoreTool(0, self.y + self.itemHeight, self.width, self.itemHeight, shovel, self)
-	shovelView:create(self.scrollView, self.scrollView)
-	tools[2] = shovelView
+	for j=1, #self.toolDefinitions do
+		local toolDefinition = self.toolDefinitions[j]
+		local toolView = BulbStoreTool(0, self.y + self.itemHeight*#tools, self.width, self.itemHeight, toolDefinition, self)
+		toolView:create(self.scrollView, self.scrollView)
+		tools[#tools+1] = toolView
+	end
 
 	local i = 0
 	for k, v in pairs(self.player.itemBag) do
-		local y = self.y + (i * self.itemHeight) + self.itemHeight*2
+		local y = self.y + (i * self.itemHeight) + self.itemHeight*#tools
 		local item = bulbGameSettings:getItemByName(k)
 		local bulbStoreItem = BulbStoreItem(0, y, self.width, self.itemHeight, item,
 								self.player.itemBag[item.tileName].inventory, self)
@@ -55,6 +53,9 @@ function BulbUI:create(group)
 	end
 	self.items = items
 	self.tools = tools
+
+	group:insert(self.scrollView)
+	
 	self.player:addEventListener("itemUpdated", self)
 end
 
@@ -96,7 +97,11 @@ function BulbUI:selectTool(type)
 end
 
 function BulbUI:removeSelf()
-	for i=0, #self.tools do
+	if (self.player) then
+		print("has player", self.player)
+		self.player:removeEventListener("itemUpdated", self)
+	end
+	for i=1, #self.tools do
 		self.tools[i]:removeSelf()
 		self.tools[i] = nil
 	end
