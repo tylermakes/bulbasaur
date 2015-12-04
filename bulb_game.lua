@@ -21,7 +21,6 @@ function BulbGame:create(group)
 	local mapWidth = self.width/5*4
 	local columns = math.floor(mapWidth/size)
 
-	self.player = BulbPlayer()
 
 	self.map = BulbMap(mapWidth, self.height, rows, columns)
 	self.map:create(group)
@@ -30,6 +29,8 @@ function BulbGame:create(group)
 	local tools = {}
 	tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
 	tools[2] = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
+	
+	self.player = BulbPlayer(self.map)
 	
 	self.ui = BulbUI(tools, self.player, mapWidth, 0, self.width/5, self.height, 10)
 	self.ui:addEventListener("selectPlant", self)

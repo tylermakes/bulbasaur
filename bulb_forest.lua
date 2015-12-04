@@ -2,6 +2,7 @@ require("class")
 require("bulb_forest_map")
 require("bulb_ui")
 require("bulb_player")
+require("bulb_enemy")
 
 BulbForest = class(function(c, width, height, storyboard, buildingMapName)
 	c.width = width
@@ -12,6 +13,7 @@ BulbForest = class(function(c, width, height, storyboard, buildingMapName)
 	c.selectTool = nil
 	c.buildingMapName = buildingMapName
 	c.storyboard = storyboard
+	c.enemies = {}
 end)
 
 function BulbForest:create(group)
@@ -20,11 +22,9 @@ function BulbForest:create(group)
 	local mapWidth = self.width/5*4
 	local columns = math.floor(mapWidth/size)
 
-	self.player = BulbPlayer()
-
 	self.map = BulbForestMap(mapWidth, self.height, rows, columns)
 	self.map:create(group)
-	self.map:addEventListener("selectTile", self)
+	self.map:addEventListener("touchTile", self)
 
 	local tools = {}
 	print("building forest:", self.buildingMapName)
@@ -37,10 +37,18 @@ function BulbForest:create(group)
 		else
 			self.map:loadMapFromData(loadedData)
 		end
-
-		self.player:setLocation(self.map:getPlayerLocation())
 	else
 		tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
+	end
+
+	self.player = BulbPlayer(self.map)
+	self.player:create(group)
+
+	local mapEnemies = self.map:getEnemies()
+	for i=1, #mapEnemies do
+		local newEnemy = BulbEnemy(self.map, mapEnemies[i])
+		newEnemy:create(group) 
+		self.enemies[#self.enemies + 1] = newEnemy
 	end
 
 	self.ui = BulbUI(tools, self.player, mapWidth, 0, self.width/5, self.height, 10)
@@ -56,6 +64,10 @@ end
 
 function BulbForest:update()
 	self.map:update()
+	self.player:update()
+	for i=1, #self.enemies do
+		self.enemies[i]:update() 
+	end
 end
 
 function BulbForest:selectTool(data)
@@ -68,9 +80,9 @@ function BulbForest:selectTool(data)
 	end
 end
 
-function BulbForest:selectTile(event)
-	-- event.x and event.y
-	-- sel
+function BulbForest:touchTile(event)
+	print("something")
+	self.player:setTargetLocation(event)
 end
 
 function BulbForest:removeSelf()

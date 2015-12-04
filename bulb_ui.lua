@@ -98,7 +98,6 @@ end
 
 function BulbUI:removeSelf()
 	if (self.player) then
-		print("has player", self.player)
 		self.player:removeEventListener("itemUpdated", self)
 	end
 	for i=1, #self.tools do

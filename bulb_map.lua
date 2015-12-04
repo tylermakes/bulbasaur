@@ -36,6 +36,30 @@ function BulbMap:update()
 	end
 end
 
+function BulbMap:getTileSize( )
+	return self.tileSize
+end
+
+function BulbMap:getPlayerStartLocation()
+	return self.playerStartLocation
+end
+
+-- locationObject must have i and j
+function BulbMap:convertMapLocationToDisplayLocation( locationObject )
+	local displayLocation = {}
+	displayLocation.x = (locationObject.i - 1) * self.tileSize;
+	displayLocation.y = (locationObject.j - 1) * self.tileSize;
+	return displayLocation;
+end
+
+-- locationObject must have x and y
+function BulbMap:convertDisplayLocationToMapLocation( locationObject )
+	local displayLocation = {}
+	displayLocation.i = math.floor(locationObject.x / self.tileSize) - 1;
+	displayLocation.j = math.floor(locationObject.y / self.tileSize) - 1;
+	return displayLocation;
+end
+
 function BulbMap:plant(i, j, type)
 	self.layers[1][i][j]:removeSelf()
 	self.layers[1][i][j] = nil

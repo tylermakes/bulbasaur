@@ -42,6 +42,10 @@ function BulbBuilder:create(group)
 
 	Runtime:addEventListener("enterFrame", self)
 	group:insert(self.fullDisplayGroup)
+
+	-- hack to load "init" map
+	local loadedData = savingContainer:loadFile("init")
+	self.map:loadMapFromData(loadedData)
 end
 
 function BulbBuilder:enterFrame()

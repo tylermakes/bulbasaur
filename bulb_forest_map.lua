@@ -11,6 +11,8 @@ BulbForestMap = class(function(c, width, height, rows, columns)
 	c.events = {}
 	c.lastTouch = {}
 	c.tileGroup = nil
+	c.playerStartLocation = {}
+	c.enemies = {}
 end)
 
 function BulbForestMap:create(group)
@@ -42,9 +44,19 @@ function BulbForestMap:loadMapFromData( data )
 	self.fileName = data.fileName
 	for i=1, self.columns do
 		for j=1, self.rows do
-			self:placeTile(i, j, data.layers[1][i][j])
+			if (data.layers[1][i][j].tileName == "player") then
+				self.playerStartLocation = {i=i, j=j}
+			elseif (data.layers[1][i][j].isEnemy) then
+				self.enemies[#self.enemies + 1] = {i=i, j=j, tileInfo=data.layers[1][i][j]}
+			else
+				self:placeTile(i, j, data.layers[1][i][j])
+			end
 		end
 	end
+end
+
+function BulbForestMap:getEnemies()
+	return self.enemies
 end
 
 function BulbForestMap:placeTile(i, j, tileInfo)
@@ -59,17 +71,12 @@ function BulbForestMap:isNewGridTouch( i, j )
 	return returnValue
 end
 
-function BulbForestMap:getPlayerLocation()
-	-- WHERE WE LEFT OFF
-	for i=1, self.columns do
-		self.layers[1][i] = {}
-		for j=1, self.rows do
-			if (self.layers[1][i][j] and self.layers[1][i][j].tileInfo) then
-				--print("type", self.layers[1][i][j].tileInfo.type)
-				return {}
-			end
-		end
-	end
+function BulbForestMap:getPlayerStartLocation()
+	return self.playerStartLocation
+end
+
+function BulbForestMap:getTileSize( )
+	return self.tileSize
 end
 
 function BulbForestMap:touch(event)
@@ -89,6 +96,36 @@ function BulbForestMap:touch(event)
 		}
 		self:dispatchEvent(selectTileEvent)
 	end
+end
+
+-- locationObject must have i and j
+function BulbForestMap:convertMapLocationToDisplayLocation( locationObject )
+	local displayLocation = {}
+	displayLocation.x = (locationObject.i - 1) * self.tileSize;
+	displayLocation.y = (locationObject.j - 1) * self.tileSize;
+	return displayLocation;
+end
+
+-- locationObject must have x and y
+function BulbForestMap:convertDisplayLocationToMapLocation( locationObject )
+	local displayLocation = {}
+	displayLocation.i = math.floor(locationObject.x / self.tileSize) - 1;
+	displayLocation.j = math.floor(locationObject.y / self.tileSize) - 1;
+	return displayLocation;
+end
+
+function BulbForestMap:openToPlayer(location)
+	-- TALK ABOUT THIS ON NEXT STREAM
+	-- PLAYERS ARE CONSTRAINED BY WHERE THEY CAN CLICK, ENEMIES AREN'T
+	-- IF IT'S OUT OF BOUNDS, THE ANSWER IS NO
+	if (location.i < 1 or location.i > self.columns) then
+		return false
+	elseif (location.j < 1 or location.j > self.rows) then
+		return false
+	end
+
+	local goalTile = self.layers[1][location.i][location.j].tileInfo
+	return goalTile.walkable
 end
 
 function BulbForestMap:addEventListener(type, object)
