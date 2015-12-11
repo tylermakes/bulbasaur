@@ -114,10 +114,24 @@ function BulbForestMap:convertDisplayLocationToMapLocation( locationObject )
 	return displayLocation;
 end
 
+function BulbForestMap:getNeighbors( location )
+	local newLocations = {}
+	newLocations[#newLocations + 1] = {i=location.i-1, j=location.j} --left
+	newLocations[#newLocations + 1] = {i=location.i+1, j=location.j} --right
+	newLocations[#newLocations + 1] = {i=location.i, j=location.j-1} --up
+	newLocations[#newLocations + 1] = {i=location.i, j=location.j+1} --down
+
+	local neighbors = {}
+	for i=1, #newLocations do
+		if (self:openToPlayer(newLocations[i])) then
+			neighbors[#neighbors + 1] = newLocations[i]
+		end
+	end
+
+	return neighbors
+end
+
 function BulbForestMap:openToPlayer(location)
-	-- TALK ABOUT THIS ON NEXT STREAM
-	-- PLAYERS ARE CONSTRAINED BY WHERE THEY CAN CLICK, ENEMIES AREN'T
-	-- IF IT'S OUT OF BOUNDS, THE ANSWER IS NO
 	if (location.i < 1 or location.i > self.columns) then
 		return false
 	elseif (location.j < 1 or location.j > self.rows) then

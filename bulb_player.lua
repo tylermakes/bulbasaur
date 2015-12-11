@@ -1,4 +1,5 @@
 require("class")
+require("bulb_astar")
 
 BulbPlayer = class(function(c, map)
 	c.itemBag = {}
@@ -10,6 +11,8 @@ BulbPlayer = class(function(c, map)
 	c.events = {}
 	c.map = map
 	c.playerView = nil
+	c.aStar = BulbAStar()
+	c.playerReversePath = nil
 	if (map) then
 		c.playerSize = map:getTileSize()
 		c.playerLocation = map:getPlayerStartLocation()
@@ -35,21 +38,23 @@ end
 
 function BulbPlayer:update()
 	--print(self.playerTargetLocation.i, self.playerTargetLocation.j)
-	local newLocation = {i=self.playerLocation.i, j=self.playerLocation.j}
-	if (newLocation.i < self.playerTargetLocation.i) then
-		newLocation.i = newLocation.i + 1
-	elseif (newLocation.i > self.playerTargetLocation.i) then
-		newLocation.i = newLocation.i - 1
-	elseif (newLocation.j < self.playerTargetLocation.j) then
-		newLocation.j = newLocation.j + 1
-	elseif (newLocation.j > self.playerTargetLocation.j) then
-		newLocation.j = newLocation.j - 1
+	-- local newLocation = {i=self.playerLocation.i, j=self.playerLocation.j}
+	-- if (newLocation.i < self.playerTargetLocation.i) then
+	-- 	newLocation.i = newLocation.i + 1
+	-- elseif (newLocation.i > self.playerTargetLocation.i) then
+	-- 	newLocation.i = newLocation.i - 1
+	-- elseif (newLocation.j < self.playerTargetLocation.j) then
+	-- 	newLocation.j = newLocation.j + 1
+	-- elseif (newLocation.j > self.playerTargetLocation.j) then
+	-- 	newLocation.j = newLocation.j - 1
+	-- end
+	if (self.playerReversePath and #self.playerReversePath >= 1) then
+		local newLocation = table.remove(self.playerReversePath)
+		if (self.map:openToPlayer(newLocation)) then
+			self.playerLocation = newLocation
+		end
+		self:updateViewLocation()
 	end
-
-	if (self.map:openToPlayer(newLocation)) then
-		self.playerLocation = newLocation
-	end
-	self:updateViewLocation()
 end
 
 function BulbPlayer:updateViewLocation()
@@ -60,8 +65,13 @@ end
 
 function BulbPlayer:setTargetLocation(event)
 	print("trying to go to:", event.x, event.y)
-	if (self.playerLocation.i == event.x or self.playerLocation.j == event.y) then
-		self.playerTargetLocation = {i=event.x, j=event.y}
+	local targetLocation = {i=event.x, j=event.y}
+	local path = self.aStar:getPath(self.playerLocation, targetLocation, self.map)
+	if (path) then
+		self.playerTargetLocation = targetLocation
+		self.playerReversePath = path
+	else
+		print("could not path to location")
 	end
 end
 

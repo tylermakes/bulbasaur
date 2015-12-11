@@ -81,7 +81,6 @@ function BulbForest:selectTool(data)
 end
 
 function BulbForest:touchTile(event)
-	print("something")
 	self.player:setTargetLocation(event)
 end
 

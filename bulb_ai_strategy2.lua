@@ -15,7 +15,7 @@ function BulbAIStrategy2:create(map, enemy)
 end
 
 function BulbAIStrategy2:getNextLocation()
-	local newLocation = self.enemy.location
+	local newLocation = {i=self.enemy.location.i, j=self.enemy.location.j}
 	if (self.goingUp) then
 		newLocation.j = newLocation.j - 1
 	else

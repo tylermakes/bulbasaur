@@ -15,7 +15,7 @@ function BulbAIStrategy1:create(map, enemy)
 end
 
 function BulbAIStrategy1:getNextLocation()
-	local newLocation = self.enemy.location
+	local newLocation = {i=self.enemy.location.i, j=self.enemy.location.j}
 	if (self.goingLeft) then
 		newLocation.i = newLocation.i - 1
 	else
@@ -25,8 +25,6 @@ function BulbAIStrategy1:getNextLocation()
 	if (self.map:openToPlayer(newLocation)) then
 		return newLocation
 	else
-	-- TALK ABOUT THIS ON NEXT STREAM
-	-- NEEDED TO USE NOT TO REFLECT WHICH DIRECTION IT'S GOING
 		self.goingLeft = not self.goingLeft
 		return self.enemy.location
 	end
