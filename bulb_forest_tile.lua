@@ -32,7 +32,7 @@ function BulbForestTile:update()
 end
 
 function BulbForestTile:getSaveData()
-	return self.tileInfo
+	return self.tileInfo.tileName
 end
 
 function BulbForestTile:removeSelf()

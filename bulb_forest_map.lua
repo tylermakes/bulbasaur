@@ -44,12 +44,13 @@ function BulbForestMap:loadMapFromData( data )
 	self.fileName = data.fileName
 	for i=1, self.columns do
 		for j=1, self.rows do
-			if (data.layers[1][i][j].tileName == "player") then
+			local newTile = bulbBuilderSettings:getItemByName(data.layers[1][i][j])
+			if (newTile.tileName == "player") then
 				self.playerStartLocation = {i=i, j=j}
-			elseif (data.layers[1][i][j].isEnemy) then
-				self.enemies[#self.enemies + 1] = {i=i, j=j, tileInfo=data.layers[1][i][j]}
+			elseif (newTile.isEnemy) then
+				self.enemies[#self.enemies + 1] = {i=i, j=j, tileInfo=newTile}
 			else
-				self:placeTile(i, j, data.layers[1][i][j])
+				self:placeTile(i, j, newTile)
 			end
 		end
 	end
@@ -131,15 +132,34 @@ function BulbForestMap:getNeighbors( location )
 	return neighbors
 end
 
-function BulbForestMap:openToPlayer(location)
-	if (location.i < 1 or location.i > self.columns) then
-		return false
-	elseif (location.j < 1 or location.j > self.rows) then
-		return false
+function BulbForestMap:getCost( current, next )
+	local nextTile = self:getTile(next)
+	local cost = 1
+	if (nextTile and nextTile.tileInfo) then
+		cost = nextTile.tileInfo.walkable
 	end
 
-	local goalTile = self.layers[1][location.i][location.j].tileInfo
-	return goalTile.walkable
+	return cost
+end
+
+function BulbForestMap:getTile(location)
+	if (location.i < 1 or location.i > self.columns) then
+		return nil
+	elseif (location.j < 1 or location.j > self.rows) then
+		return nil
+	end
+
+	return self.layers[1][location.i][location.j]
+end
+
+function BulbForestMap:openToPlayer(location)
+	local tile = self:getTile(location)
+	local open = false
+	if (tile ~= nil and tile.tileInfo.walkable) then
+		open = tile.tileInfo.walkable > 0
+	end
+
+	return open
 end
 
 function BulbForestMap:addEventListener(type, object)

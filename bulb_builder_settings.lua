@@ -10,11 +10,11 @@ BulbBuilderSettings = class(function(c)
 	types[3] = { id=3, tileName="tree2", color=BulbColor(0.6,1,0.6) }
 	types[4] = { id=4, tileName="enemy1", isEnemy=true, color=BulbColor(0.8,0,0.6) }
 	types[5] = { id=5, tileName="enemy2", isEnemy=true, color=BulbColor(1,1,0.6) }
-	types[6] = { id=6, tileName="river", color=BulbColor(0,0,1) }
+	types[6] = { id=6, tileName="river", walkable=5, color=BulbColor(0,0,1) }
 	types[7] = { id=7, tileName="seeds", color=BulbColor(1,0,0) }
 	types[8] = { id=8, tileName="wall", color=BulbColor(0.3, 0.3, 0.3) }
-	types[9] = { id=9, tileName="lava", walkable=true, color=BulbColor(1, 0.6, 0) }
-	types[10] = { id=10, tileName="dirt", walkable=true, color=BulbColor(0.8,0.6,0) }
+	types[9] = { id=9, tileName="lava", walkable=10, color=BulbColor(1, 0.6, 0) }
+	types[10] = { id=10, tileName="dirt", walkable=1, color=BulbColor(0.8,0.6,0) }
 	c.types = types
 
 	c.dirtType = types[10]

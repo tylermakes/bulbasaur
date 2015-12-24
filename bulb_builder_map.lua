@@ -50,7 +50,7 @@ function BulbBuilderMap:loadMapFromData( data )
 	self.fileName = data.fileName
 	for i=1, self.columns do
 		for j=1, self.rows do
-			self:placeTile(i, j, data.layers[1][i][j])
+			self:placeTile(i, j, bulbBuilderSettings:getItemByName(data.layers[1][i][j]))
 		end
 	end
 end
