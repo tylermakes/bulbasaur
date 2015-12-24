@@ -2,6 +2,7 @@ require("class")
 require("bulb_color")
 require("bulb_ai_strategy1")
 require("bulb_ai_strategy2")
+require("bulb_ai_strategy3")
 
 BulbBuilderSettings = class(function(c)
 	local types = {}
@@ -15,6 +16,7 @@ BulbBuilderSettings = class(function(c)
 	types[8] = { id=8, tileName="wall", color=BulbColor(0.3, 0.3, 0.3) }
 	types[9] = { id=9, tileName="lava", walkable=10, color=BulbColor(1, 0.6, 0) }
 	types[10] = { id=10, tileName="dirt", walkable=1, color=BulbColor(0.8,0.6,0) }
+	types[11] = { id=11, tileName="enemy3", isEnemy=true, color=BulbColor(0.3,0.1,0.1) }
 	c.types = types
 
 	c.dirtType = types[10]
@@ -25,6 +27,8 @@ function BulbBuilderSettings:getStrategyForEnemy(type)
 		return BulbAIStrategy1()
 	elseif (type == "enemy2") then
 		return BulbAIStrategy2()
+	elseif (type == "enemy3") then
+		return BulbAIStrategy3()
 	end
 end
 

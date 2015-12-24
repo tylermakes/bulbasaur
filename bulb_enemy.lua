@@ -30,8 +30,8 @@ function BulbEnemy:create(group)
 	end
 end
 
-function BulbEnemy:update()
-	self.targetLocation = self.aiStrategy:getNextLocation(self)
+function BulbEnemy:update(player)
+	self.targetLocation = self.aiStrategy:getNextLocation(player)
 	--print(self.targetLocation.i, self.targetLocation.j)
 	local newLocation = {i=self.location.i, j=self.location.j}
 	if (newLocation.i < self.targetLocation.i) then

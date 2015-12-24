@@ -4,24 +4,24 @@ require("class")
 -- Based on the Red Blob Tutorial:
 -- http://www.redblobgames.com/pathfinding/a-star/introduction.html
 
-BulbAStar = class(function(c)
+BulbBreadthFirstSearch = class(function(c)
 	c.frontier ={}
 	c.cameFrom = {}
 end)
 
-function BulbAStar:reset()
+function BulbBreadthFirstSearch:reset()
 	self.frontier = {}
 	self.cameFrom = {}
 end
 
-function BulbAStar:insertIntoCameFrom(location, value)
+function BulbBreadthFirstSearch:insertIntoCameFrom(location, value)
 	if (not self.cameFrom[location.i]) then
 		self.cameFrom[location.i] = {}
 	end
 	self.cameFrom[location.i][location.j] = value
 end
 
-function BulbAStar:getPath(start, goal, map)
+function BulbBreadthFirstSearch:getPath(start, goal, map)
 	self:reset()
 
 	self.frontier[#self.frontier + 1] = start
@@ -43,7 +43,7 @@ function BulbAStar:getPath(start, goal, map)
 	return nil
 end
 
-function BulbAStar:getActualPath(start, goal)
+function BulbBreadthFirstSearch:getActualPath(start, goal)
 	local path = {}
 	local current = goal
 	path[#path + 1] = current

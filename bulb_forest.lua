@@ -66,7 +66,7 @@ function BulbForest:update()
 	self.map:update()
 	self.player:update()
 	for i=1, #self.enemies do
-		self.enemies[i]:update() 
+		self.enemies[i]:update(self.player) 
 	end
 end
 

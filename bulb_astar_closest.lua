@@ -5,39 +5,34 @@ require("priority_queue")
 -- Based on the Red Blob Tutorial:
 -- http://www.redblobgames.com/pathfinding/a-star/introduction.html
 
-BulbAStar = class(function(c)
+BulbAStarClosest = class(function(c)
 	c.frontier = PriorityQueue()
 	c.cameFrom = {}
 	c.costSoFar = {}
 end)
 
-function BulbAStar:reset()
+function BulbAStarClosest:reset()
 	self.frontier = PriorityQueue()
 	self.cameFrom = {}
 	self.costSoFar = {}
 end
 
-function BulbAStar:insertLocationIntoTable(table, location, value)
+function BulbAStarClosest:insertLocationIntoTable(table, location, value)
 	if (not table[location.i]) then
 		table[location.i] = {}
 	end
 	table[location.i][location.j] = value
 end
 
-function BulbAStar:getLocationFromTable(table, location)
+function BulbAStarClosest:getLocationFromTable(table, location)
 	if (not table[location.i]) then
 		return nil
 	end
 	return table[location.i][location.j]
 end
 
-function BulbAStar:getPath(start, goal, map)
+function BulbAStarClosest:getPath(start, goal, map)
 	self:reset()
-
-	-- already there
-	if (start.i == goal.i and start.j == goal.j) then
-		return {start}
-	end
 
 	self.frontier:put(start,0)
 	self:insertLocationIntoTable(self.costSoFar, start, 0)
@@ -67,10 +62,25 @@ function BulbAStar:getPath(start, goal, map)
 		end
 	end
 
+	-- didn't find path to location, try to find closes path
+	-- FUTURE PROJECT, NOT DONE YET
+	-- local leftDistance = 1
+	-- local rightDistance = 1
+	-- local upDistance = 1
+	-- local leftDistance = 1
+	-- local iterations = 0
+	-- while(iterations <= 100)
+	-- 	goal - leftDistance -> goal + rightDistance
+	-- 	goal -
+	-- 	self.cameFrom[]
+
+	-- end
+
+
 	return nil
 end
 
-function BulbAStar:getActualPath(start, goal)
+function BulbAStarClosest:getActualPath(start, goal)
 	local path = {}
 	local current = goal
 	path[#path + 1] = current

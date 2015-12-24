@@ -142,6 +142,10 @@ function BulbForestMap:getCost( current, next )
 	return cost
 end
 
+function BulbForestMap:heuristic( goal, next )
+	return math.abs(goal.i - next.i) + math.abs(goal.j - next.j)
+end
+
 function BulbForestMap:getTile(location)
 	if (location.i < 1 or location.i > self.columns) then
 		return nil

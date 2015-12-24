@@ -5,53 +5,42 @@ require("priority_queue")
 -- Based on the Red Blob Tutorial:
 -- http://www.redblobgames.com/pathfinding/a-star/introduction.html
 
-BulbAStar = class(function(c)
+BulbGreedyBestFirstSearch = class(function(c)
 	c.frontier = PriorityQueue()
 	c.cameFrom = {}
-	c.costSoFar = {}
 end)
 
-function BulbAStar:reset()
+function BulbGreedyBestFirstSearch:reset()
 	self.frontier = PriorityQueue()
 	self.cameFrom = {}
-	self.costSoFar = {}
 end
 
-function BulbAStar:insertLocationIntoTable(table, location, value)
+function BulbGreedyBestFirstSearch:insertLocationIntoTable(table, location, value)
 	if (not table[location.i]) then
 		table[location.i] = {}
 	end
 	table[location.i][location.j] = value
 end
 
-function BulbAStar:getLocationFromTable(table, location)
+function BulbGreedyBestFirstSearch:getLocationFromTable(table, location)
 	if (not table[location.i]) then
 		return nil
 	end
 	return table[location.i][location.j]
 end
 
-function BulbAStar:getPath(start, goal, map)
+function BulbGreedyBestFirstSearch:getPath(start, goal, map)
 	self:reset()
 
-	-- already there
-	if (start.i == goal.i and start.j == goal.j) then
-		return {start}
-	end
-
 	self.frontier:put(start,0)
-	self:insertLocationIntoTable(self.costSoFar, start, 0)
 	self:insertLocationIntoTable(self.cameFrom, start, "none")
 
 	local current = self.frontier:pop().v
 
 	while (current ~= nil) do
 		for i,nextNeighbor in ipairs(map:getNeighbors(current)) do
-			local newCost = self:getLocationFromTable(self.costSoFar, current) + map:getCost(current, nextNeighbor)
-			local neighborCostSoFar = self:getLocationFromTable(self.costSoFar, nextNeighbor)
-			if ((neighborCostSoFar == nil) or newCost < neighborCostSoFar) then
-				self:insertLocationIntoTable(self.costSoFar, nextNeighbor, newCost)
-				local priority = newCost + map:heuristic(goal, nextNeighbor)
+			if (not self:getLocationFromTable(self.cameFrom, nextNeighbor)) then
+				local priority = map:heuristic(goal, nextNeighbor)
 				self.frontier:put(nextNeighbor, priority)
 				self:insertLocationIntoTable(self.cameFrom, nextNeighbor, current)
 				if (nextNeighbor.i == goal.i and nextNeighbor.j == goal.j) then
@@ -70,7 +59,7 @@ function BulbAStar:getPath(start, goal, map)
 	return nil
 end
 
-function BulbAStar:getActualPath(start, goal)
+function BulbGreedyBestFirstSearch:getActualPath(start, goal)
 	local path = {}
 	local current = goal
 	path[#path + 1] = current

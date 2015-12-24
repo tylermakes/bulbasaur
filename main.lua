@@ -6,6 +6,7 @@
 require("bulb_game_settings")
 require("bulb_builder_settings")
 require("saving_container")
+require("bulb_astar")
 
 -- hide the status bar
 display.setStatusBar( display.HiddenStatusBar )
@@ -14,6 +15,7 @@ bulbGameSettings = BulbGameSettings()
 bulbBuilderSettings = BulbBuilderSettings()
 savingContainer = SavingContainer(bulbGameSettings)	--param must have :getGameData and :setupFromData
 
+globalAStar = BulbAStar()
 savingContainer:load()
 
 local storyboard = require "storyboard"
