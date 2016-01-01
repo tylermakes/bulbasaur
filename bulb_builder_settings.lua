@@ -17,6 +17,7 @@ BulbBuilderSettings = class(function(c)
 	types[9] = { id=9, tileName="lava", walkable=10, color=BulbColor(1, 0.6, 0) }
 	types[10] = { id=10, tileName="dirt", walkable=1, color=BulbColor(0.8,0.6,0) }
 	types[11] = { id=11, tileName="enemy3", isEnemy=true, color=BulbColor(0.3,0.1,0.1) }
+	types[12] = { id=12, tileName="nav", walkable=1, nav="bulb_game_scene", color=BulbColor(0.4,0.4,0.4) }
 	c.types = types
 
 	c.dirtType = types[10]

@@ -1,5 +1,6 @@
 require("class")
 require("bulb_farm_tile")
+require("bulb_navigation_tile")
 
 BulbMap = class(function(c, width, height, rows, columns)
 	c.width = width
@@ -8,30 +9,58 @@ BulbMap = class(function(c, width, height, rows, columns)
 	c.columns = columns
 	c.tileSize = c.height/rows
 	c.layers = {}
+	c.layerGroups = {}
 	c.events = {}
 	c.lastTouch = {}
 	c.tileGroup = nil
+	c.navigationTiles = {}
+	c.navigationTiles[1] = {i=1, j=8, nav="bulb_home_scene"}
+	c.navigationTiles[2] = {i=9, j=1, nav="bulb_forest_scene"}
 end)
 
 function BulbMap:create(group)
 	self.tileGroup = display.newGroup()
+	self.layerGroups[1] = display.newGroup()
+	self.layerGroups[2] = display.newGroup()
 	self.layers[1] = {}
+	self.layers[2] = {}
+
 	for i=1, self.columns do
 		self.layers[1][i] = {}
+		self.layers[2][i] = {}
 		for j=1, self.rows do
-			self.layers[1][i][j] = BulbFarmTile(i, j, (i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)
-			self.layers[1][i][j]:create(self.tileGroup)
+			self.layers[1][i][j] = BulbFarmTile(i, j,
+				(i-1) * self.tileSize,(j-1) * self.tileSize, self.tileSize)
+			self.layers[1][i][j]:create(self.layerGroups[1])
+
+			self.layers[2][i][j] = nil
 		end
 	end
 
+	for k=1, #self.navigationTiles do
+		local tile = self.navigationTiles[k]
+		self.layers[2][tile.i][tile.j] = BulbNavigationTile(tile.i, tile.j,
+			(tile.i-1) * self.tileSize, (tile.j-1) * self.tileSize,
+			self.tileSize, tile.nav)
+		self.layers[2][tile.i][tile.j]:create(self.layerGroups[2])
+	end
+
 	self.tileGroup:addEventListener("touch", self)
+
+	for a=1, #self.layerGroups do
+		self.tileGroup:insert(self.layerGroups[a])
+	end
 	group:insert(self.tileGroup)
 end
 
 function BulbMap:update()
-	for i=1, #self.layers[1] do
-		for j=1, #self.layers[1][i] do
-			self.layers[1][i][j]:update()
+	for k=1, #self.layers do
+		for i=1, #self.layers[k] do
+			for j=1, #self.layers[k][i] do
+				if (self.layers[k][i][j]) then
+					self.layers[k][i][j]:update()
+				end
+			end
 		end
 	end
 end
@@ -64,7 +93,7 @@ function BulbMap:plant(i, j, type)
 	self.layers[1][i][j]:removeSelf()
 	self.layers[1][i][j] = nil
 	self.layers[1][i][j] = BulbFarmTile(i, j, (i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)
-	self.layers[1][i][j]:create(self.tileGroup, type)
+	self.layers[1][i][j]:create(self.layerGroups[1], type)
 end
 
 function BulbMap:canPlant(i, j, type)
@@ -79,6 +108,15 @@ function BulbMap:harvest(i, j)
 	local plantType = self.layers[1][i][j].type
 	self:plant(i, j, nil)
 	return plantType
+end
+
+function BulbMap:getNavigation(i, j)
+	for k=1, #self.navigationTiles do
+		if (i == self.navigationTiles[k].i and
+			j == self.navigationTiles[k].j) then
+			return self.navigationTiles[k].nav
+		end
+	end
 end
 
 function BulbMap:isNewGridTouch( i, j )
@@ -98,8 +136,8 @@ function BulbMap:touch(event)
 		}
 		selectTileEvent = {
 			name = "selectTile",
-			x = i,
-			y = j
+			i = i,
+			j = j
 		}
 		self:dispatchEvent(selectTileEvent)
 	end
@@ -121,12 +159,26 @@ function BulbMap:dispatchEvent(data)
 end
 
 function BulbMap:removeSelf()
-	if (self.layers[1]) then
-		for i=1, #self.layers[1] do
-			for j=1, #self.layers[1][i] do
-				self.layers[1][i][j]:removeSelf()
-				self.layers[1][i][j] = nil
+	for k=1, #self.layers do
+		for i=1, #self.layers[k] do
+			for j=1, #self.layers[k][i] do
+				if (self.layers[k][i][j]) then
+					self.layers[k][i][j]:removeSelf()
+				end
+				self.layers[k][i][j] = nil
 			end
+			self.layers[k][i] = nil
 		end
+		self.layers[k] = nil
 	end
+	self.layers = nil
+	
+	for a=1, #self.layerGroups do
+		self.layerGroups[a]:removeSelf()
+		self.layerGroups[a] = nil
+	end
+	self.layerGroups = nil
+
+	self.tileGroup:removeSelf()
+	self.tileGroup = nil
 end

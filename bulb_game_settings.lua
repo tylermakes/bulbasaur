@@ -36,6 +36,9 @@ BulbGameSettings = class(function(c)
 	talking["brother"] = brotherSays
 	
 	c.talking = talking
+
+	c.forestStartName = "init";
+	c.forestCurrentMap = "init";
 end)
 
 function BulbGameSettings:getGameData()

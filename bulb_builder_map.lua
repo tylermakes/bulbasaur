@@ -50,7 +50,9 @@ function BulbBuilderMap:loadMapFromData( data )
 	self.fileName = data.fileName
 	for i=1, self.columns do
 		for j=1, self.rows do
-			self:placeTile(i, j, bulbBuilderSettings:getItemByName(data.layers[1][i][j]))
+			local tileInfo = bulbBuilderSettings:getItemByName(data.layers[1][i][j].tileName)
+			local customData = data.layers[1][i][j].customData
+			self:placeTile(i, j, tileInfo, customData)
 		end
 	end
 end
@@ -84,12 +86,12 @@ function BulbBuilderMap:handleSpecialTile(i, j, tileInfo)
 	end
 end
 
-function BulbBuilderMap:placeTile(i, j, tileInfo)
+function BulbBuilderMap:placeTile(i, j, tileInfo, customData)
 	self:handleSpecialTile(i, j, tileInfo)
 	self.layers[1][i][j]:removeSelf()
 	self.layers[1][i][j] = nil
 	self.layers[1][i][j] = BulbForestTile(i, j, (i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)
-	self.layers[1][i][j]:create(self.tileGroup, tileInfo)
+	self.layers[1][i][j]:create(self.tileGroup, tileInfo, customData)
 end
 
 function BulbBuilderMap:isNewGridTouch( i, j )

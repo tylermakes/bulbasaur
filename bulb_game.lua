@@ -63,15 +63,18 @@ function BulbGame:selectTool(data)
 end
 
 function BulbGame:selectTile(event)
-	if (self.state == "planting") then 
+	local navigation = self.map:getNavigation(event.i, event.j)
+	if (navigation) then
+		self.storyboard.gotoScene( navigation, "fade", 500 )
+	elseif (self.state == "planting") then 
 		if (self.player.itemBag[self.selectedPlant.tileName].inventory >= 1 and
-			self.map:canPlant(event.x, event.y, self.selectedPlant.tileName)) then
-			self.map:plant(event.x, event.y, self.selectedPlant.tileName)
+			self.map:canPlant(event.i, event.j, self.selectedPlant.tileName)) then
+			self.map:plant(event.i, event.j, self.selectedPlant.tileName)
 			self.player:deductItem(self.selectedPlant.tileName, 1)
 		end
 	elseif (self.state == "tooling") then
-		if (self.map:canHarvest(event.x, event.y)) then
-			local typeHarvested = self.map:harvest(event.x, event.y)
+		if (self.map:canHarvest(event.i, event.j)) then
+			local typeHarvested = self.map:harvest(event.i, event.j)
 			self.player:addItem(typeHarvested, 2)
 		end
 	end

@@ -1,1 +1,16 @@
--make a migration function for maps (or simpler save?)
+-slow down animation for player movement
+-update menu with forest actions (dig, list seeds, remove navigation from side menu)
+-add navigation tiles to forest map
+-add navigation tiles to garden map
+-add exit in home to garden
+-load image assets
+-"death" of player in forest
+-save\load the current state of the garden
+-save\load the current state of your inventory
+-save\load your current location (home, forest, garden)
+-game menu
+-tutorial
+-credits
+
+DONE:
+!make a migration function for maps (or simpler save?)

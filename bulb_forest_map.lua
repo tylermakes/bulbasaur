@@ -8,6 +8,7 @@ BulbForestMap = class(function(c, width, height, rows, columns)
 	c.columns = columns
 	c.tileSize = c.height/rows
 	c.layers = {}
+	c.layerGroups = {}
 	c.events = {}
 	c.lastTouch = {}
 	c.tileGroup = nil
@@ -17,16 +18,28 @@ end)
 
 function BulbForestMap:create(group)
 	self.tileGroup = display.newGroup()
+	self.layerGroups[1] = display.newGroup()
+	self.layerGroups[2] = display.newGroup()
 	self.layers[1] = {}
+	self.layers[2] = {}
+
 	for i=1, self.columns do
 		self.layers[1][i] = {}
+		self.layers[2][i] = {}
 		for j=1, self.rows do
-			self.layers[1][i][j] = BulbForestTile(i, j, (i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)
-			self.layers[1][i][j]:create(self.tileGroup)
+			self.layers[1][i][j] = BulbForestTile(i, j,
+				(i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)
+			self.layers[1][i][j]:create(self.layerGroups[1])
+
+			self.layers[2][i][j] = nil
 		end
 	end
 
 	self.tileGroup:addEventListener("touch", self)
+
+	for a=1, #self.layerGroups do
+		self.tileGroup:insert(self.layerGroups[a])
+	end
 	group:insert(self.tileGroup)
 end
 
@@ -44,13 +57,14 @@ function BulbForestMap:loadMapFromData( data )
 	self.fileName = data.fileName
 	for i=1, self.columns do
 		for j=1, self.rows do
-			local newTile = bulbBuilderSettings:getItemByName(data.layers[1][i][j])
+			local newTile = bulbBuilderSettings:getItemByName(data.layers[1][i][j].tileName)
+			local customData = data.layers[1][i][j].customData
 			if (newTile.tileName == "player") then
 				self.playerStartLocation = {i=i, j=j}
 			elseif (newTile.isEnemy) then
 				self.enemies[#self.enemies + 1] = {i=i, j=j, tileInfo=newTile}
 			else
-				self:placeTile(i, j, newTile)
+				self:placeTile(i, j, newTile, customData)
 			end
 		end
 	end
@@ -60,11 +74,11 @@ function BulbForestMap:getEnemies()
 	return self.enemies
 end
 
-function BulbForestMap:placeTile(i, j, tileInfo)
+function BulbForestMap:placeTile(i, j, tileInfo, customData)
 	self.layers[1][i][j]:removeSelf()
 	self.layers[1][i][j] = nil
 	self.layers[1][i][j] = BulbForestTile(i, j, (i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)
-	self.layers[1][i][j]:create(self.tileGroup, tileInfo)
+	self.layers[1][i][j]:create(self.layerGroups[1], tileInfo, customData)
 end
 
 function BulbForestMap:isNewGridTouch( i, j )
@@ -78,6 +92,20 @@ end
 
 function BulbForestMap:getTileSize( )
 	return self.tileSize
+end
+
+function BulbForestMap:triggerLocation( location )
+	local tile = self:getTile(location)
+	local locationEvent = nil
+	if (tile.tileInfo.nav) then
+		locationEvent = {
+			name = "navigate",
+			nav = tile.nav
+		}
+	end
+	if (locationEvent) then
+		self:dispatchEvent(locationEvent)
+	end
 end
 
 function BulbForestMap:touch(event)
@@ -182,12 +210,26 @@ function BulbForestMap:dispatchEvent(data)
 end
 
 function BulbForestMap:removeSelf()
-	if (self.layers[1]) then
-		for i=1, #self.layers[1] do
-			for j=1, #self.layers[1][i] do
-				self.layers[1][i][j]:removeSelf()
-				self.layers[1][i][j] = nil
+	for k=1, #self.layers do
+		for i=1, #self.layers[k] do
+			for j=1, #self.layers[k][i] do
+				if (self.layers[k][i][j]) then
+					self.layers[k][i][j]:removeSelf()
+				end
+				self.layers[k][i][j] = nil
 			end
+			self.layers[k][i] = nil
 		end
+		self.layers[k] = nil
 	end
+	self.layers = nil
+	
+	for a=1, #self.layerGroups do
+		self.layerGroups[a]:removeSelf()
+		self.layerGroups[a] = nil
+	end
+	self.layerGroups = nil
+
+	self.tileGroup:removeSelf()
+	self.tileGroup = nil
 end

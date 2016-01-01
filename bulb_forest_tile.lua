@@ -8,9 +8,10 @@ BulbForestTile = class(function(c, i, j, x, y, size)
 	c.size = size
 	c.tileView = nil
 	c.tileInfo = nil
+	c.nav = nil
 end)
 
-function BulbForestTile:create(group, tileInfo)
+function BulbForestTile:create(group, tileInfo, customData)
 	self.tileInfo = tileInfo or bulbBuilderSettings.dirtType
 	local tileView = display.newRect( 0, 0, self.size, self.size )
 	tileView:setFillColor( 0.8, 0.6, 0 )
@@ -22,6 +23,10 @@ function BulbForestTile:create(group, tileInfo)
 	self.tileView = tileView
 	group:insert(self.tileView)
 
+	if (customData) then
+		self.nav = customData.nav
+	end
+
 	if (tileInfo) then
 		tileView:setFillColor( tileInfo.color.r, tileInfo.color.g, tileInfo.color.b )
 	end
@@ -32,7 +37,7 @@ function BulbForestTile:update()
 end
 
 function BulbForestTile:getSaveData()
-	return self.tileInfo.tileName
+	return {tileName = self.tileInfo.tileName, customData = {nav = self.tileInfo.nav}}
 end
 
 function BulbForestTile:removeSelf()
