@@ -18,6 +18,11 @@ savingContainer = SavingContainer(bulbGameSettings)	--param must have :getGameDa
 globalAStar = BulbAStar()
 savingContainer:load()
 
-local storyboard = require "storyboard"
--- storyboard.gotoScene( "bulb_game_scene" )
-storyboard.gotoScene( "bulb_builder_scene" )
+globalBuildMode = true
+
+local composer = require( "composer" )
+if (globalBuildMode) then
+	composer.gotoScene( "bulb_builder_scene" )
+else
+	composer.gotoScene( "bulb_game_scene" )
+end

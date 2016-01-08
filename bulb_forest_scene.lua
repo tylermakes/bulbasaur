@@ -6,37 +6,39 @@ require("bulb_forest")
 --
 -----------------------------------------------------------------------------------------
 
-local storyboard = require( "storyboard" )
-local scene = storyboard.newScene()
+local composer = require( "composer" )
+local scene = composer.newScene()
 
 local game
 
 -- Called when the scene's view does not exist:
-function scene:createScene( event )
+function scene:create( event )
 	local group = self.view
 	if (not event.params) then
 		event.params = {}
 	end
 	if (not game) then
-		game = BulbForest(display.contentWidth, display.contentHeight, storyboard, event.params.mapFileName)
+		game = BulbForest(display.contentWidth, display.contentHeight,
+			composer, event.params.mapFileName, event.params.previousMapName)
 		game:create(group)
 	end
 end
 
 -- Called immediately after scene has moved onscreen:
-function scene:enterScene( event )
+function scene:show( event )
 	local group = self.view
 	if (not event.params) then
 		event.params = {}
 	end
 	if (not game) then
-		game = BulbForest(display.contentWidth, display.contentHeight, storyboard, event.params.mapFileName)
+		game = BulbForest(display.contentWidth, display.contentHeight,
+			composer, event.params.mapFileName, event.params.previousMapName)
 		game:create(group)
 	end
 end
 
 -- Called when scene is about to move offscreen:
-function scene:exitScene( event )
+function scene:hide( event )
 	local group = self.view
 
 	if (game) then
@@ -45,8 +47,8 @@ function scene:exitScene( event )
 	end
 end
 
--- If scene's view is removed, scene:destroyScene() will be called just prior to:
-function scene:destroyScene( event )
+-- If scene's view is removed, scene:destroy() will be called just prior to:
+function scene:destroy( event )
 	local group = self.view
 
 	if (game) then
@@ -56,13 +58,13 @@ function scene:destroyScene( event )
 end
 
 -----------------------------------------------------------------------------------------
-scene:addEventListener( "createScene", scene ) -- "createScene" event is dispatched if scene's view does not exist
-scene:addEventListener( "enterScene", scene ) -- "enterScene" event is dispatched whenever scene transition has finished
-scene:addEventListener( "exitScene", scene ) -- "exitScene" event is dispatched whenever before next scene's transition begins
--- "destroyScene" event is dispatched before view is unloaded, which can be
+scene:addEventListener( "create", scene ) -- "create" event is dispatched if scene's view does not exist
+scene:addEventListener( "show", scene ) -- "show" event is dispatched whenever scene transition has finished
+scene:addEventListener( "hide", scene ) -- "hide" event is dispatched whenever before next scene's transition begins
+-- "destroy" event is dispatched before view is unloaded, which can be
 -- automatically unloaded in low memory situations, or explicitly via a call to
--- storyboard.purgeScene() or storyboard.removeScene().
-scene:addEventListener( "destroyScene", scene )
+-- composer.purgeScene() or composer.removeScene().
+scene:addEventListener( "destroy", scene )
 -----------------------------------------------------------------------------------------
 
 return scene

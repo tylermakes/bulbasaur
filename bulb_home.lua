@@ -4,7 +4,7 @@ require("bulb_ui")
 require("bulb_player")
 require("bulb_living_room")
 
-BulbHome = class(function(c, width, height, storyboard)
+BulbHome = class(function(c, width, height, composer)
 	c.width = width
 	c.height = height
 	c.player = nil
@@ -12,7 +12,7 @@ BulbHome = class(function(c, width, height, storyboard)
 	c.state = "nothing"
 	c.selectedPlant = nil
 	c.selectTool = nil
-	c.storyboard = storyboard
+	c.composer = composer
 end)
 
 function BulbHome:create(group)
@@ -53,9 +53,9 @@ end
 
 function BulbHome:selectTool(data)
 	if (data.type == "garden") then
-		self.storyboard.gotoScene( "bulb_game_scene", "fade", 500 )
+		self.composer.gotoScene( "bulb_game_scene", "fade", 500 )
 	elseif (data.type == "forest") then
-		self.storyboard.gotoScene( "bulb_forest_scene", "fade", 500 )
+		self.composer.gotoScene( "bulb_forest_scene", "fade", 500 )
 	else
 		self.state = "tooling"
 		self.selectedTool = data.type

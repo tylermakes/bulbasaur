@@ -171,4 +171,8 @@ function BulbFileNamePopup:removeSelf()
 		self.cancelButton:removeSelf()
 		self.cancelButton = nil
 	end
+	for i, v in pairs(self.events) do
+		self.events[i] = nil;
+	end
+	self.events = nil
 end

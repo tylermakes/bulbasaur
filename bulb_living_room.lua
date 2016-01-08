@@ -10,7 +10,6 @@ BulbLivingRoom = class(function(c, width, height)
 end)
 
 function BulbLivingRoom:create(group)
-	print("building LR");
 	self:addCharacter("grandma", 30, 75, 150, 260)
 	self:addCharacter("brother", 670, 55, 100, 235)
 

@@ -32,12 +32,18 @@ function BulbForestTile:create(group, tileInfo, customData)
 	end
 end
 
+function BulbForestTile:setNavLocation( navLocation )
+	if (self.tileInfo.tileName == "nav") then
+		self.nav = navLocation
+	end
+end
+
 function BulbForestTile:update()
 	
 end
 
 function BulbForestTile:getSaveData()
-	return {tileName = self.tileInfo.tileName, customData = {nav = self.tileInfo.nav}}
+	return {tileName = self.tileInfo.tileName, customData = {nav = self.nav}}
 end
 
 function BulbForestTile:removeSelf()

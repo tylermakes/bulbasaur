@@ -118,6 +118,21 @@ function BulbBuilderMap:touch(event)
 	end
 end
 
+function BulbBuilderMap:setNavLocation( location, navLocation )
+	local tile = self:getTile(location)
+	tile:setNavLocation(navLocation)
+end
+
+function BulbBuilderMap:getTile(location)
+	if (location.i < 1 or location.i > self.columns) then
+		return nil
+	elseif (location.j < 1 or location.j > self.rows) then
+		return nil
+	end
+
+	return self.layers[1][location.i][location.j]
+end
+
 function BulbBuilderMap:addEventListener(type, object)
 	if (not self.events[type]) then
 		self.events[type] = {}

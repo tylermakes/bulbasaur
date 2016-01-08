@@ -4,7 +4,7 @@ require("bulb_ui")
 require("bulb_player")
 require("bulb_enemy")
 
-BulbForest = class(function(c, width, height, storyboard, buildingMapName)
+BulbForest = class(function(c, width, height, composer, buildingMapName, previousMapName)
 	c.width = width
 	c.height = height
 	c.map = nil
@@ -13,9 +13,9 @@ BulbForest = class(function(c, width, height, storyboard, buildingMapName)
 	c.selectTool = nil
 	c.lastPlayerLocation = nil
 	c.buildingMapName = buildingMapName
-	c.storyboard = storyboard
+	c.previousMapName = previousMapName
+	c.composer = composer
 	c.enemies = {}
-	c.buildMode = false
 end)
 
 function BulbForest:create(group)
@@ -30,16 +30,14 @@ function BulbForest:create(group)
 	self.map:addEventListener("navigate", self)
 
 	local tools = {}
-	print("building forest:", self.buildingMapName)
 	if (self.buildingMapName) then
-		self.buildMode = true
 		tools[1] = {tileName="build", color=BulbColor(0.8, 0.4, 1)}
 		
 		local loadedData = savingContainer:loadFile(self.buildingMapName)
 		if (loadedData.failure) then
 			print("FAILED TO LOAD DATA FROM:", self.buildingMapName)	-- probably filename doesn't exist
 		else
-			self.map:loadMapFromData(loadedData)
+			self.map:loadMapFromData(loadedData, self.previousMapName)
 		end
 	else
 		tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
@@ -48,13 +46,12 @@ function BulbForest:create(group)
 		if (loadedData.failure) then
 			print("FAILED TO LOAD DATA FROM:", bulbGameSettings.forestCurrentMap)	-- probably filename doesn't exist
 		else
-			self.map:loadMapFromData(loadedData)
+			self.map:loadMapFromData(loadedData, self.previousMapName)
 		end
 	end
 
 	self.player = BulbPlayer(self.map)
 	self.player:create(group)
-	print("set player:", self.player.playerLocation)
 	self.lastPlayerLocation = self.player.playerLocation
 
 	local mapEnemies = self.map:getEnemies()
@@ -93,9 +90,9 @@ end
 ----------------------------------
 function BulbForest:selectTool(data)
 	if (data.type == "build") then
-		self.storyboard.gotoScene( "bulb_builder_scene", "fade", 500 )
+		self.composer.gotoScene( "bulb_builder_scene", "fade", 500 )
 	elseif (data.type == "home") then
-		self.storyboard.gotoScene( "bulb_home_scene", "fade", 500 )
+		self.composer.gotoScene( "bulb_home_scene", "fade", 500 )
 	else
 		print("unknown item:", data.type)
 	end
@@ -106,11 +103,26 @@ function BulbForest:touchTile(event)
 end
 
 function BulbForest:navigate(event)
-	print("navigate?")
-	if (self.buildMode) then
-		self.storyboard.gotoScene( "bulb_builder_scene", "fade", 500 )
+	if ( string.find(event.nav, '_scene')) then
+		if (globalBuildMode and
+			(event.nav == "bulb_home_scene" or
+				event.nav == "bulb_game_scene")) then
+			self.composer.gotoScene( "bulb_builder_scene", "fade", 500 )
+		else
+			self.composer.gotoScene( event.nav, "fade", 500 )
+		end
 	else
-		self.storyboard.gotoScene( event.nav, "fade", 500 )
+		local options =
+		{
+			effect = "fade",
+			time = 500,
+			params =
+			{
+				previousMapName = self.buildingMapName,
+				mapFileName = event.nav
+			}
+		}
+		self.composer.gotoScene( "bulb_forest_scene", options )
 	end
 end
 ----------------------------------

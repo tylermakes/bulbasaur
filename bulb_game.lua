@@ -3,7 +3,7 @@ require("bulb_map")
 require("bulb_ui")
 require("bulb_player")
 
-BulbGame = class(function(c, width, height, storyboard)
+BulbGame = class(function(c, width, height, composer)
 	c.width = width
 	c.height = height
 	c.map = nil
@@ -12,7 +12,7 @@ BulbGame = class(function(c, width, height, storyboard)
 	c.state = "nothing"
 	c.selectedPlant = nil
 	c.selectTool = nil
-	c.storyboard = storyboard
+	c.composer = composer
 end)
 
 function BulbGame:create(group)
@@ -55,7 +55,7 @@ end
 
 function BulbGame:selectTool(data)
 	if (data.type == "home") then
-		self.storyboard.gotoScene( "bulb_home_scene", "fade", 500 )
+		self.composer.gotoScene( "bulb_home_scene", "fade", 500 )
 	else
 		self.state = "tooling"
 		self.selectedTool = data.type
@@ -65,7 +65,7 @@ end
 function BulbGame:selectTile(event)
 	local navigation = self.map:getNavigation(event.i, event.j)
 	if (navigation) then
-		self.storyboard.gotoScene( navigation, "fade", 500 )
+		self.composer.gotoScene( navigation, "fade", 500 )
 	elseif (self.state == "planting") then 
 		if (self.player.itemBag[self.selectedPlant.tileName].inventory >= 1 and
 			self.map:canPlant(event.i, event.j, self.selectedPlant.tileName)) then

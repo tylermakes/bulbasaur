@@ -3,7 +3,7 @@ require("bulb_builder_map")
 require("bulb_builder_ui")
 require("bulb_file_name_popup")
 
-BulbBuilder = class(function(c, width, height, storyboard)
+BulbBuilder = class(function(c, width, height, composer)
 	c.width = width
 	c.height = height
 	c.map = nil
@@ -13,8 +13,9 @@ BulbBuilder = class(function(c, width, height, storyboard)
 	c.selectedPlant = nil
 	c.selectTool = nil
 	c.filePopup = nil
-	c.storyboard = storyboard
+	c.composer = composer
 	c.fullDisplayGroup = nil
+	c.navTile = nil
 end)
 
 function BulbBuilder:create(group)
@@ -63,7 +64,8 @@ end
 
 function BulbBuilder:selectTool(data)
 	if (data.type == "home") then
-		self.storyboard.gotoScene( "bulb_home_scene", "fade", 500 )
+		globalBuildMode = false -- once you leave, you can't come back
+		self.composer.gotoScene( "bulb_home_scene", "fade", 500 )
 	elseif (data.type == "save") then
 		if (not self.map.mapName) then
 			self:clearFilePopup()
@@ -93,7 +95,7 @@ function BulbBuilder:selectTool(data)
 				mapFileName = "temp"
 			}
 		}
-		self.storyboard.gotoScene( "bulb_forest_scene", options )
+		self.composer.gotoScene( "bulb_forest_scene", options )
 	else
 		print("unknown tool type:", data.type)
 		-- self.state = "tooling"
@@ -103,7 +105,18 @@ end
 
 function BulbBuilder:placeTile(event)
 	if (self.state == "placing") then 
-		self.map:placeTile(event.x, event.y, self.selectedTile)
+		if (self.selectedTile.tileName == "nav" and
+			self.map:getTile({i=event.x, j=event.y}).tileInfo.tileName == "nav") then
+			
+			self.navTile = {i=event.x, j=event.y}
+			self:clearFilePopup()
+			self.filePopup = BulbFileNamePopup("Enter Nav Location:", "nav_location")
+			self.filePopup:create(self.fullDisplayGroup)
+			self.filePopup:addEventListener("fileName", self)
+			self.filePopup:addEventListener("clearFilePopup", self)
+		else
+			self.map:placeTile(event.x, event.y, self.selectedTile)
+		end
 	elseif (self.state == "tooling") then
 	end
 end
@@ -127,6 +140,8 @@ function BulbBuilder:fileName(evt)
 		else
 			self.map:loadMapFromData(loadedData)
 		end
+	elseif (evt.action == "nav_location") then
+		self.map:setNavLocation(self.navTile, evt.fileName)
 	else
 		print("unknown action", evt.action, " on filename:", evt.fileName)
 	end
@@ -158,4 +173,5 @@ function BulbBuilder:removeSelf()
 		self.fullDisplayGroup:removeSelf()
 		self.fullDisplayGroup = nil
 	end
+	self.navTile = nil
 end

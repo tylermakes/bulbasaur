@@ -14,6 +14,7 @@ BulbForestMap = class(function(c, width, height, rows, columns)
 	c.tileGroup = nil
 	c.playerStartLocation = {}
 	c.enemies = {}
+	c.navBackLocation = nil
 end)
 
 function BulbForestMap:create(group)
@@ -52,13 +53,18 @@ function BulbForestMap:update()
 	-- end
 end
 
-function BulbForestMap:loadMapFromData( data )
+function BulbForestMap:loadMapFromData( data, previousScene )
 	self.mapName = data.mapName
 	self.fileName = data.fileName
+	print("==========================")
 	for i=1, self.columns do
 		for j=1, self.rows do
 			local newTile = bulbBuilderSettings:getItemByName(data.layers[1][i][j].tileName)
 			local customData = data.layers[1][i][j].customData
+			print(newTile.nav, previousScene)
+			if (newTile.tileName == "nav" and newTile.nav == previousScene) then
+				self.navBackLocation = {i=i, j=j}
+			end
 			if (newTile.tileName == "player") then
 				self.playerStartLocation = {i=i, j=j}
 			elseif (newTile.isEnemy) then
@@ -66,6 +72,14 @@ function BulbForestMap:loadMapFromData( data )
 			else
 				self:placeTile(i, j, newTile, customData)
 			end
+		end
+	end
+	-- NO START FOUND, USE NAV BACK LOCATION
+	if (not (self.playerStartLocation and self.playerStartLocation.i and self.playerStartLocation.j)) then
+		if (self.navBackLocation) then
+			self.playerStartLocation = self.navBackLocation
+		else
+			self.playerStartLocation = {i=1, j=1}
 		end
 	end
 end
