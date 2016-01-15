@@ -157,4 +157,8 @@ function BulbBuilderMap:removeSelf()
 			end
 		end
 	end
+	for i, v in pairs(self.events) do
+		self.events[i] = nil;
+	end
+	self.events = nil
 end

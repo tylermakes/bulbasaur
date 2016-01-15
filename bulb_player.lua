@@ -18,6 +18,10 @@ BulbPlayer = class(function(c, map)
 		c.playerLocation = map:getPlayerStartLocation()
 		c.playerTargetLocation = c.playerLocation
 	end
+	c.oldLocation = c.playerLocation
+	c.transitioning = 0;
+	c.transitionStep = 0;
+	c.TRANSITION_SPEED = 5;
 end)
 
 function BulbPlayer:create(group)
@@ -37,6 +41,19 @@ function BulbPlayer:create(group)
 end
 
 function BulbPlayer:update()
+	if (self.transitioning ~= 0) then
+		self:transition()
+	else
+		if (self.playerReversePath and #self.playerReversePath >= 1) then
+			local newLocation = table.remove(self.playerReversePath)
+			if (self.map:openToPlayer(newLocation)) then
+				self.oldLocation = self.playerLocation
+				self.playerLocation = newLocation
+				self:startTransition()
+			end
+			--self:updateViewLocation()
+		end
+	end
 	--print(self.playerTargetLocation.i, self.playerTargetLocation.j)
 	-- local newLocation = {i=self.playerLocation.i, j=self.playerLocation.j}
 	-- if (newLocation.i < self.playerTargetLocation.i) then
@@ -48,23 +65,45 @@ function BulbPlayer:update()
 	-- elseif (newLocation.j > self.playerTargetLocation.j) then
 	-- 	newLocation.j = newLocation.j - 1
 	-- end
-	if (self.playerReversePath and #self.playerReversePath >= 1) then
-		local newLocation = table.remove(self.playerReversePath)
-		if (self.map:openToPlayer(newLocation)) then
-			self.playerLocation = newLocation
-		end
+end
+
+function BulbPlayer:startTransition()
+	self.transitioning = self.TRANSITION_SPEED
+	local oldLocation = self.map:convertMapLocationToDisplayLocation(self.oldLocation)
+	local newLocation = self.map:convertMapLocationToDisplayLocation(self.playerLocation)
+	
+	self.transitionStep = {x = (newLocation.x - oldLocation.x)/self.TRANSITION_SPEED,
+							y = (newLocation.y - oldLocation.y)/self.TRANSITION_SPEED}
+	self:transition()
+end
+
+function BulbPlayer:transition()
+	if (self.transitioning > 0) then
+		self.transitioning = self.transitioning - 1
 		self:updateViewLocation()
+	else
+		self:endTransition()
 	end
+end
+
+function BulbPlayer:endTransition()
+	self.transitioning = 0
+	self.transitionStep = 0
 end
 
 function BulbPlayer:updateViewLocation()
 	local newLocation = self.map:convertMapLocationToDisplayLocation(self.playerLocation)
-	self.playerView.x = newLocation.x
-	self.playerView.y = newLocation.y
+	self.playerView.x = newLocation.x - (self.transitionStep.x * self.transitioning)
+	self.playerView.y = newLocation.y - (self.transitionStep.y * self.transitioning)
 end
 
+-- function BulbPlayer:updateViewLocation()
+-- 	local newLocation = self.map:convertMapLocationToDisplayLocation(self.playerLocation)
+-- 	self.playerView.x = newLocation.x
+-- 	self.playerView.y = newLocation.y
+-- end
+
 function BulbPlayer:setTargetLocation(event)
-	print("trying to go to:", event.x, event.y)
 	local targetLocation = {i=event.x, j=event.y}
 	local path = self.aStar:getPath(self.playerLocation, targetLocation, self.map)
 	if (path) then

@@ -7,11 +7,13 @@ BulbLivingRoom = class(function(c, width, height)
 	c.characters = {}
 	c.background = nil
 	c.rpgTextBox = nil
+	c.events = {}
 end)
 
 function BulbLivingRoom:create(group)
-	self:addCharacter("grandma", 30, 75, 150, 260)
-	self:addCharacter("brother", 670, 55, 100, 235)
+	self:addCharacter(group, "grandma", 30, 75, 150, 260)
+	self:addCharacter(group, "brother", 670, 55, 100, 235)
+	self:addCharacter(group, "exit", 315, 45, 150, 270)
 
 	local background = display.newImageRect("assets/homebackground.png", self.width, self.height)
 	background.anchorX = 0;
@@ -56,7 +58,7 @@ function BulbLivingRoom:update()
 	self.rpgTextBox:update()
 end
 
-function BulbLivingRoom:addCharacter(name, x, y, width, height)
+function BulbLivingRoom:addCharacter(group, name, x, y, width, height)
 	local character = {}
 	character.name = name
 	character.x = x
@@ -68,7 +70,14 @@ function BulbLivingRoom:addCharacter(name, x, y, width, height)
 
 	function character:touch(event)
 		if ( event.phase == "began" ) then
-			livingRoom:saySomething(self.name)
+			if (self.name == "exit") then
+				locationEvent = {
+					name = "navigate"
+				}
+				livingRoom:dispatchEvent(locationEvent)
+			else
+				livingRoom:saySomething(self.name)
+			end
 		end
 	end
 
@@ -80,7 +89,8 @@ function BulbLivingRoom:addCharacter(name, x, y, width, height)
 	clickRect.anchorY = 0
 	clickRect.x = x
 	clickRect.y = y
-	
+	group:insert(clickRect)
+
 	clickRect:addEventListener("touch", character)
 	
 	character.clickRect = clickRect
@@ -90,6 +100,21 @@ end
 
 function BulbLivingRoom:saySomething(name)
 	self.rpgTextBox:say(bulbGameSettings:getTextByName(name))
+end
+
+function BulbLivingRoom:addEventListener(type, object)
+	if (not self.events[type]) then
+		self.events[type] = {}
+	end
+	self.events[type][#self.events[type] + 1] = object
+end
+
+function BulbLivingRoom:dispatchEvent(data)
+	if (self.events[data.name]) then
+		for i=1, #self.events[data.name] do
+			self.events[data.name][i][data.name](self.events[data.name][i], data)
+		end
+	end
 end
 
 function BulbLivingRoom:removeSelf( )
@@ -108,4 +133,9 @@ function BulbLivingRoom:removeSelf( )
 		self.rpgTextBox:removeSelf()
 		self.rpgTextBox = nil
 	end
+
+	for i, v in pairs(self.events) do
+		self.events[i] = nil;
+	end
+	self.events = nil
 end

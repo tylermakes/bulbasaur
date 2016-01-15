@@ -25,10 +25,11 @@ function BulbHome:create(group)
 
 	self.livingRoom = BulbLivingRoom(mapWidth, self.height)
 	self.livingRoom:create(group)
+	self.livingRoom:addEventListener("navigate", self)
 
 	local tools = {}
-	tools[1] = {tileName="garden", color=BulbColor(0.8, 0.4, 1)}
-	tools[2] = {tileName="forest", color=BulbColor(0.7, 0.5, 1)}
+	--tools[1] = {tileName="garden", color=BulbColor(0.8, 0.4, 1)}
+	--tools[2] = {tileName="forest", color=BulbColor(0.7, 0.5, 1)}
 	--tools[2] = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
 	self.ui = BulbUI(tools, self.player, mapWidth, 0, self.width/5, self.height, 10)
 	self.ui:addEventListener("selectPlant", self)
@@ -36,6 +37,10 @@ function BulbHome:create(group)
 	self.ui:create(group)
 
 	Runtime:addEventListener("enterFrame", self)
+end
+
+function BulbHome:navigate(event)
+	self.composer.gotoScene( "bulb_game_scene", "fade", 500 )
 end
 
 function BulbHome:enterFrame()

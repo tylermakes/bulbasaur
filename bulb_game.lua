@@ -27,8 +27,7 @@ function BulbGame:create(group)
 	self.map:addEventListener("selectTile", self)
 
 	local tools = {}
-	tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
-	tools[2] = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
+	tools[1] = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
 	
 	self.player = BulbPlayer(self.map)
 	
@@ -54,18 +53,28 @@ function BulbGame:selectPlant(data)
 end
 
 function BulbGame:selectTool(data)
-	if (data.type == "home") then
-		self.composer.gotoScene( "bulb_home_scene", "fade", 500 )
-	else
+	-- if (data.type == "home") then
+	-- 	self.composer.gotoScene( "bulb_home_scene", "fade", 500 )
+	-- else
 		self.state = "tooling"
 		self.selectedTool = data.type
-	end
+	-- end
 end
 
 function BulbGame:selectTile(event)
 	local navigation = self.map:getNavigation(event.i, event.j)
 	if (navigation) then
-		self.composer.gotoScene( navigation, "fade", 500 )
+		local options =
+		{
+			effect = "fade",
+			time = 500,
+			params =
+			{
+				previousMapName = "bulb_game_scene",
+				mapFileName = "init"
+			}
+		}
+		self.composer.gotoScene( navigation, options )
 	elseif (self.state == "planting") then 
 		if (self.player.itemBag[self.selectedPlant.tileName].inventory >= 1 and
 			self.map:canPlant(event.i, event.j, self.selectedPlant.tileName)) then

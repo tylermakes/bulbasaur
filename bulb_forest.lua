@@ -31,7 +31,9 @@ function BulbForest:create(group)
 
 	local tools = {}
 	if (self.buildingMapName) then
-		tools[1] = {tileName="build", color=BulbColor(0.8, 0.4, 1)}
+		if (globalBuildMode) then
+			tools[1] = {tileName="build", color=BulbColor(0.8, 0.4, 1)}
+		end
 		
 		local loadedData = savingContainer:loadFile(self.buildingMapName)
 		if (loadedData.failure) then
@@ -40,7 +42,7 @@ function BulbForest:create(group)
 			self.map:loadMapFromData(loadedData, self.previousMapName)
 		end
 	else
-		tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
+		--tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
 
 		local loadedData = savingContainer:loadFile(bulbGameSettings.forestCurrentMap)
 		if (loadedData.failure) then
