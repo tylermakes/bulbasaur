@@ -2,10 +2,11 @@ require("class")
 require("bulb_astar")
 
 BulbPlayer = class(function(c, map)
+	c.temporaryItems = {}
 	c.itemBag = {}
 
 	for k, v in pairs(bulbGameSettings.types) do
-	    c.itemBag[k] = { name=k, inventory=math.random(30) }
+		c.itemBag[k] = { name=k, inventory=math.random(30) }
 	end
 	
 	c.events = {}
@@ -114,24 +115,47 @@ function BulbPlayer:setTargetLocation(event)
 	end
 end
 
-function BulbPlayer:deductItem(type, num)
-	self.itemBag[type].inventory = self.itemBag[type].inventory - num
+function BulbPlayer:deductItem(type, num, temporary)
+	local newValue = -1
+	if (temporary) then
+		if (not self.temporaryItems[type]) then
+			self.temporaryItems[type] = {name=type, inventory=0}
+		end
+		self.temporaryItems[type].inventory = self.temporaryItems[type].inventory - num
+		newValue = self.temporaryItems[type].inventory
+	else
+		self.itemBag[type].inventory = self.itemBag[type].inventory - num
+		newValue = self.itemBag[type].inventory
+	end
 	itemUsedEvent = {
 		name ="itemUpdated",
 		status = "deducted",
 		type = type,
-		newValue = self.itemBag[type].inventory
+		temporary = temporary,
+		newValue = newValue
 	}
 	self:dispatchEvent(itemUsedEvent)
 end
 
-function BulbPlayer:addItem(type, num)
-	self.itemBag[type].inventory = self.itemBag[type].inventory + num
+function BulbPlayer:addItem(type, num, temporary)
+	local newValue = -1
+	if (temporary) then
+		if (not self.temporaryItems[type]) then
+			self.temporaryItems[type] = {name=type, inventory=0}
+			print("adding new temp items type")
+		end
+		self.temporaryItems[type].inventory = self.temporaryItems[type].inventory + num
+		newValue = self.temporaryItems[type].inventory
+	else
+		self.itemBag[type].inventory = self.itemBag[type].inventory + num
+		newValue = self.itemBag[type].inventory
+	end
 	itemUsedEvent = {
 		name ="itemUpdated",
 		status = "added",
 		type = type,
-		newValue = self.itemBag[type].inventory
+		temporary = temporary,
+		newValue = newValue
 	}
 	self:dispatchEvent(itemUsedEvent)
 end

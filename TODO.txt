@@ -1,3 +1,4 @@
+-save player items, construct inventory and player object from that
 -load image assets
 -update menu with forest actions (dig, list seeds, )
 

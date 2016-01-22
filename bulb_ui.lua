@@ -4,7 +4,7 @@ require("bulb_store_tool")
 require("bulb_color")
 local widget = require "widget"
 
-BulbUI = class(function(c, toolDefinitions, player, x, y, width, height, itemNumber)
+BulbUI = class(function(c, toolDefinitions, player, x, y, width, height, itemNumber, temporary)
 	c.x = x
 	c.y = y
 	c.player = player
@@ -16,17 +16,18 @@ BulbUI = class(function(c, toolDefinitions, player, x, y, width, height, itemNum
 	c.tools = nil
 	c.events = {}
 	c.toolDefinitions = toolDefinitions
+	c.temporary = temporary
+	c.totalUniqueStoreItems = 0
 end)
 
 function BulbUI:create(group)
-	items = {}
-	tools = {}
 
 	local scrollView = widget.newScrollView( {
 			width = self.width,
 			height = self.height,
 			horizontalScrollDisabled = true,
-			isBounceEnabled = false
+			isBounceEnabled = false,
+			backgroundColor = { 0.8, 0.8, 0.8 }
 		} )
 	scrollView.anchorX = 0
 	scrollView.anchorY = 0
@@ -34,32 +35,43 @@ function BulbUI:create(group)
 	scrollView.y = self.y
 	self.scrollView = scrollView
 
+	self.tools = {}
 	for j=1, #self.toolDefinitions do
 		local toolDefinition = self.toolDefinitions[j]
-		local toolView = BulbStoreTool(0, self.y + self.itemHeight*#tools, self.width, self.itemHeight, toolDefinition, self)
+		local toolView = BulbStoreTool(0, self.y + self.itemHeight*#self.tools, self.width, self.itemHeight, toolDefinition, self)
 		toolView:create(self.scrollView, self.scrollView)
-		tools[#tools+1] = toolView
+		self.tools[#self.tools+1] = toolView
 	end
 
-	local i = 0
-	for k, v in pairs(self.player.itemBag) do
-		local y = self.y + (i * self.itemHeight) + self.itemHeight*#tools
-		local item = bulbGameSettings:getItemByName(k)
-		local bulbStoreItem = BulbStoreItem(0, y, self.width, self.itemHeight, item,
-								self.player.itemBag[item.tileName].inventory, self)
-		bulbStoreItem:create(self.scrollView, self.scrollView)
-		items[k] = bulbStoreItem
-		i = i + 1
+	self.items = {}
+	local itemHolder = self.player.itemBag
+	if (self.temporary) then
+		itemHolder = self.player.temporaryItems
 	end
-	self.items = items
-	self.tools = tools
+	self.totalUniqueStoreItems = 0
+	for k, v in pairs(itemHolder) do
+		self:addStoreItem(k, v.inventory)
+		self.totalUniqueStoreItems = self.totalUniqueStoreItems + 1
+	end
 
 	group:insert(self.scrollView)
 	
 	self.player:addEventListener("itemUpdated", self)
 end
 
+function BulbUI:addStoreItem(name, inventory)
+	local y = self.y + (self.totalUniqueStoreItems * self.itemHeight) + self.itemHeight*#self.tools
+	local item = bulbGameSettings:getItemByName(name)
+	local bulbStoreItem = BulbStoreItem(0, y, self.width, self.itemHeight, item,
+							inventory, self)
+	bulbStoreItem:create(self.scrollView, self.scrollView)
+	self.items[name] = bulbStoreItem
+end
+
 function BulbUI:itemUpdated(event)
+	if (not self.items[event.type]) then
+		self:addStoreItem(event.type, event.newValue)
+	end
 	self.items[event.type]:updateInventory(event.newValue)
 end
 

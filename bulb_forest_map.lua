@@ -107,16 +107,25 @@ end
 
 function BulbForestMap:triggerLocation( location )
 	local tile = self:getTile(location)
-	local locationEvent = nil
-	if (tile.tileInfo.nav) then
-		locationEvent = {
-			name = "navigate",
-			nav = tile.nav
+	local tileEvent = nil
+	if (tile.nav) then
+		tileEvent = {
+			name = "triggerTile",
+			subtype = "navigate",
+			nav = tile.nav,
+			location = {i=location.i, j=location.j}
+		}
+	elseif (tile.tileInfo.seed) then
+		tileEvent = {
+			name = "triggerTile",
+			subtype = "seeds",
+			seedType = tile.tileInfo.seed,
+			location = {i=location.i, j=location.j}
 		}
 	end
-	if (locationEvent) then
+	if (tileEvent) then
 		print("triggering location:", location.i, location.j)
-		self:dispatchEvent(locationEvent)
+		self:dispatchEvent(tileEvent)
 	end
 end
 

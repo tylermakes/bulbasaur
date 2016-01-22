@@ -115,7 +115,7 @@ function BulbBuilder:placeTile(event)
 			self.filePopup:addEventListener("fileName", self)
 			self.filePopup:addEventListener("clearFilePopup", self)
 		else
-			self.map:placeTile(event.x, event.y, self.selectedTile)
+			self.map:placeTile(event.x, event.y, self.selectedTile, self.selectedTile.customData)
 		end
 	elseif (self.state == "tooling") then
 	end

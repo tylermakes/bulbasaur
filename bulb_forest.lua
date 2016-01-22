@@ -27,7 +27,7 @@ function BulbForest:create(group)
 	self.map = BulbForestMap(mapWidth, self.height, rows, columns)
 	self.map:create(group)
 	self.map:addEventListener("touchTile", self)
-	self.map:addEventListener("navigate", self)
+	self.map:addEventListener("triggerTile", self)
 
 	local tools = {}
 	if (self.buildingMapName) then
@@ -63,7 +63,11 @@ function BulbForest:create(group)
 		self.enemies[#self.enemies + 1] = newEnemy
 	end
 
-	self.ui = BulbUI(tools, self.player, mapWidth, 0, self.width/5, self.height, 10)
+	print("players items:")
+	for k, v in pairs(self.player.temporaryItems) do
+		print("temp items:", k, v)
+	end
+	self.ui = BulbUI(tools, self.player, mapWidth, 0, self.width/5, self.height, 10, true)
 	self.ui:addEventListener("selectTool", self)
 	self.ui:create(group)
 
@@ -102,6 +106,22 @@ end
 
 function BulbForest:touchTile(event)
 	self.player:setTargetLocation(event)
+end
+
+function BulbForest:triggerTile(event)
+	if (event.subtype == "navigate") then
+		self:navigate(event)
+	elseif (event.subtype == "seeds") then
+		self:gatherSeeds(event)
+	else
+		print("unknown tile subtype triggered")
+	end
+end
+
+function BulbForest:gatherSeeds(event)
+	self.player:addItem(event.seedType, 1, true)
+	local tileInfo = bulbBuilderSettings.dirtType
+	self.map:placeTile(event.location.i, event.location.j, tileInfo)
 end
 
 function BulbForest:navigate(event)
