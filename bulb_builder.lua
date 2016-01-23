@@ -2,6 +2,7 @@ require("class")
 require("bulb_builder_map")
 require("bulb_builder_ui")
 require("bulb_file_name_popup")
+require("basic_init_file")
 
 BulbBuilder = class(function(c, width, height, composer)
 	c.width = width
@@ -46,6 +47,9 @@ function BulbBuilder:create(group)
 
 	-- hack to load "init" map
 	local loadedData = savingContainer:loadFile("init")
+	if (loadedData.failure) then
+		loadedData = basicInitData
+	end
 	self.map:loadMapFromData(loadedData)
 end
 
