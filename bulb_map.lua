@@ -89,11 +89,11 @@ function BulbMap:convertDisplayLocationToMapLocation( locationObject )
 	return displayLocation;
 end
 
-function BulbMap:plant(i, j, type)
+function BulbMap:plant(i, j, plantInfo)
 	self.layers[1][i][j]:removeSelf()
 	self.layers[1][i][j] = nil
 	self.layers[1][i][j] = BulbFarmTile(i, j, (i-1) * self.tileSize, (j-1) * self.tileSize, self.tileSize)
-	self.layers[1][i][j]:create(self.layerGroups[1], type)
+	self.layers[1][i][j]:create(self.layerGroups[1], plantInfo)
 end
 
 function BulbMap:canPlant(i, j, type)
@@ -105,7 +105,7 @@ function BulbMap:canHarvest(i, j)
 end
 
 function BulbMap:harvest(i, j)
-	local plantType = self.layers[1][i][j].type
+	local plantType = self.layers[1][i][j].plantInfo.tileName
 	self:plant(i, j, nil)
 	return plantType
 end

@@ -1,4 +1,5 @@
 require("class")
+require("sprite_sheet_forest")
 
 BulbForestTile = class(function(c, i, j, x, y, size)
 	c.i = i
@@ -13,13 +14,20 @@ end)
 
 function BulbForestTile:create(group, tileInfo, customData)
 	self.tileInfo = tileInfo or bulbBuilderSettings.dirtType
-	local tileView = display.newRect( 0, 0, self.size, self.size )
-	tileView:setFillColor( 0.8, 0.6, 0 )
+	local tileView
+	if (self.tileInfo.tileName == "REPLACE_THIS_LATER") then
+		tileView = display.newImage(spriteSheetForest, 1)
+	else
+		tileView = display.newRect( 0, 0, self.size, self.size )
+		tileView:setFillColor( 0.8, 0.6, 0 )
+	end
 	
 	tileView.anchorX = 0;
 	tileView.anchorY = 0;
 	tileView.x = self.x;
 	tileView.y = self.y;
+	tileView.width = self.size
+	tileView.height	 = self.size
 	self.tileView = tileView
 	group:insert(self.tileView)
 

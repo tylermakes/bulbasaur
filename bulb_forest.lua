@@ -38,6 +38,8 @@ function BulbForest:create(group)
 		local loadedData = savingContainer:loadFile(self.buildingMapName)
 		if (loadedData.failure) then
 			print("FAILED TO LOAD DATA FROM:", self.buildingMapName)	-- probably filename doesn't exist
+			print("HAVE YOU SAVED YOUR INIT FILE?")
+			return;
 		else
 			self.map:loadMapFromData(loadedData, self.previousMapName)
 		end

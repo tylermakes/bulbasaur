@@ -78,7 +78,7 @@ function BulbGame:selectTile(event)
 	elseif (self.state == "planting") then 
 		if (self.player.itemBag[self.selectedPlant.tileName].inventory >= 1 and
 			self.map:canPlant(event.i, event.j, self.selectedPlant.tileName)) then
-			self.map:plant(event.i, event.j, self.selectedPlant.tileName)
+			self.map:plant(event.i, event.j, self.selectedPlant)
 			self.player:deductItem(self.selectedPlant.tileName, 1)
 		end
 	elseif (self.state == "tooling") then
