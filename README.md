@@ -7,3 +7,6 @@ Or you can watch the videos afterward by going to https://www.youtube.com/channe
 
 
 Note: There are tags for each stream.  Stream 1 = v0.0.1, Stream 2 = v0.0.2, and so on.
+
+#RUNNING THE GAME
+Currently, the game opens on the map builder.  You must save a map with the name "init" in order for the game to run.  Do that first.
