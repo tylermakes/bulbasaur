@@ -134,8 +134,12 @@ function BulbLivingRoom:removeSelf( )
 		self.rpgTextBox = nil
 	end
 
-	for i, v in pairs(self.events) do
-		self.events[i] = nil;
+	for k, v in pairs(self.events) do
+		for i=1, #v do
+			self.events[k][i] = nil
+		end
+		self.events[k] = nil
 	end
 	self.events = nil
+	self.events = {}
 end

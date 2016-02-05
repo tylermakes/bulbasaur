@@ -1,8 +1,10 @@
 require("class")
 require("bulb_color")
+require("bulb_player_data")
 
 BulbGameSettings = class(function(c)
 	c.mapNames = {}
+	c.playerData = BulbPlayerData()
 
 	local types = {}
 	types["strawberry"] = { id=1, tileName="strawberry", harvestTime=50, cost=1001, color=BulbColor(1,0,0) }
@@ -43,12 +45,14 @@ end)
 
 function BulbGameSettings:getGameData()
 	return {
-		mapNames = self.mapNames
+		mapNames = self.mapNames,
+		playerData = self.playerData:getGameData()
 	}
 end
 
 function BulbGameSettings:setupFromData(mainData)
 	self.mapNames = mainData.mapNames
+	self.playerData:setupFromGameData(mainData.playerData)
 end
 
 function BulbGameSettings:addMapName(name)

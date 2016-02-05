@@ -2,13 +2,6 @@ require("class")
 require("bulb_astar")
 
 BulbPlayer = class(function(c, map)
-	c.temporaryItems = {}
-	c.itemBag = {}
-
-	for k, v in pairs(bulbGameSettings.types) do
-		c.itemBag[k] = { name=k, inventory=math.random(30) }
-	end
-	
 	c.events = {}
 	c.map = map
 	c.playerView = nil
@@ -112,76 +105,6 @@ function BulbPlayer:setTargetLocation(event)
 		self.playerReversePath = path
 	else
 		print("could not path to location")
-	end
-end
-
-function BulbPlayer:deductItem(type, num, temporary)
-	local newValue = -1
-	if (temporary) then
-		if (not self.temporaryItems[type]) then
-			self.temporaryItems[type] = {name=type, inventory=0}
-		end
-		self.temporaryItems[type].inventory = self.temporaryItems[type].inventory - num
-		newValue = self.temporaryItems[type].inventory
-	else
-		self.itemBag[type].inventory = self.itemBag[type].inventory - num
-		newValue = self.itemBag[type].inventory
-	end
-	itemUsedEvent = {
-		name ="itemUpdated",
-		status = "deducted",
-		type = type,
-		temporary = temporary,
-		newValue = newValue
-	}
-	self:dispatchEvent(itemUsedEvent)
-end
-
-function BulbPlayer:addItem(type, num, temporary)
-	local newValue = -1
-	if (temporary) then
-		if (not self.temporaryItems[type]) then
-			self.temporaryItems[type] = {name=type, inventory=0}
-			print("adding new temp items type")
-		end
-		self.temporaryItems[type].inventory = self.temporaryItems[type].inventory + num
-		newValue = self.temporaryItems[type].inventory
-	else
-		self.itemBag[type].inventory = self.itemBag[type].inventory + num
-		newValue = self.itemBag[type].inventory
-	end
-	itemUsedEvent = {
-		name ="itemUpdated",
-		status = "added",
-		type = type,
-		temporary = temporary,
-		newValue = newValue
-	}
-	self:dispatchEvent(itemUsedEvent)
-end
-
-function BulbPlayer:addEventListener(type, object)
-	if (not self.events[type]) then
-		self.events[type] = {}
-	end
-	self.events[type][#self.events[type] + 1] = object
-end
-
-function BulbPlayer:removeEventListener(type, object)
-	for k, v in pairs(self.events) do
-		for i=1, #v do
-			self.events[k][i] = nil
-		end
-		self.events[k] = nil
-	end
-	self.events = nil
-end
-
-function BulbPlayer:dispatchEvent(data)
-	if (self.events[data.name]) then
-		for i=1, #self.events[data.name] do
-			self.events[data.name][i][data.name](self.events[data.name][i], data)
-		end
 	end
 end
 

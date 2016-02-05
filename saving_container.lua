@@ -6,7 +6,7 @@ SavingContainer = class(function(c, gameSettings)
 end)
 
 function SavingContainer:save()
-	print("SAVING?")
+	-- print("SAVING?")
 	local currentGameData = self.gameSettings:getGameData();
 
 	local encodedData = self.json.encode(currentGameData)

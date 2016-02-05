@@ -31,17 +31,6 @@ function BulbBuilder:create(group)
 	self.map:create(self.fullDisplayGroup)
 	self.map:addEventListener("placeTile", self)
 
-	local tools = {}
-	tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
-	tools[2] = {tileName="save", color=BulbColor(0.6, 0.6, 0.4)}
-	tools[3] = {tileName="load", color=BulbColor(0.6, 0.4, 0.6)}
-	tools[4] = {tileName="clear", color=BulbColor(0.2, 0.4, 0.2)}
-	tools[5] = {tileName="play", color=BulbColor(0.1, 0.5, 0.3)}
-	self.ui = BulbBuilderUI(tools, mapWidth, 0, self.width/5, self.height, 10)
-	self.ui:addEventListener("selectTile", self)
-	self.ui:addEventListener("selectTool", self)
-	self.ui:create(self.fullDisplayGroup)
-
 	Runtime:addEventListener("enterFrame", self)
 	group:insert(self.fullDisplayGroup)
 
@@ -51,6 +40,33 @@ function BulbBuilder:create(group)
 		loadedData = basicInitData
 	end
 	self.map:loadMapFromData(loadedData)
+end
+
+function BulbBuilder:entered(group)
+	-- triggered when the scene is entered or re-entered
+	-- savingContainer:save()
+	if (not self.ui) then
+		local mapWidth = self.width/5*4
+		local tools = {}
+		tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
+		tools[2] = {tileName="save", color=BulbColor(0.6, 0.6, 0.4)}
+		tools[3] = {tileName="load", color=BulbColor(0.6, 0.4, 0.6)}
+		tools[4] = {tileName="clear", color=BulbColor(0.2, 0.4, 0.2)}
+		tools[5] = {tileName="play", color=BulbColor(0.1, 0.5, 0.3)}
+		self.ui = BulbBuilderUI(tools, mapWidth, 0, self.width/5, self.height, 10)
+		self.ui:addEventListener("selectTile", self)
+		self.ui:addEventListener("selectTool", self)
+		self.ui:create(self.fullDisplayGroup)
+	end
+end
+
+function BulbBuilder:left( )
+	-- triggered when the scene is entered or re-entered
+	-- savingContainer:save()
+	if (self.ui) then
+		self.ui:removeSelf()
+		self.ui = nil
+	end
 end
 
 function BulbBuilder:enterFrame()

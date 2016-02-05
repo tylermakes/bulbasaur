@@ -148,6 +148,17 @@ function BulbBuilderMap:dispatchEvent(data)
 	end
 end
 
+function BulbBuilderMap:removeAllEventListeners( )
+	for k, v in pairs(self.events) do
+		for i=1, #v do
+			self.events[k][i] = nil
+		end
+		self.events[k] = nil
+	end
+	self.events = nil
+	self.events = {}
+end
+
 function BulbBuilderMap:removeSelf()
 	if (self.layers[1]) then
 		for i=1, #self.layers[1] do
@@ -157,8 +168,5 @@ function BulbBuilderMap:removeSelf()
 			end
 		end
 	end
-	for i, v in pairs(self.events) do
-		self.events[i] = nil;
-	end
-	self.events = nil
+	self:removeAllEventListeners()
 end

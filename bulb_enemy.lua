@@ -127,7 +127,6 @@ function BulbEnemy:removeEventListener(type, object)
 		end
 		self.events[k] = nil
 	end
-	self.events = nil
 end
 
 function BulbEnemy:dispatchEvent(data)

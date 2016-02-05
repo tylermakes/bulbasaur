@@ -89,18 +89,24 @@ function BulbBuilderUI:selectTool(type)
 end
 
 function BulbBuilderUI:removeSelf()
-	for i=1, #self.tools do
-		self.tools[i]:removeSelf()
-		self.tools[i] = nil
+	if (self.tools) then
+		for i=1, #self.tools do
+			self.tools[i]:removeSelf()
+			self.tools[i] = nil
+		end
 	end
 	self.tools = nil
-	for k, v in pairs(self.items) do
-		self.items[k]:removeSelf()
-		self.items[k] = nil
+	if (self.items) then
+		for k, v in pairs(self.items) do
+			self.items[k]:removeSelf()
+			self.items[k] = nil
+		end
 	end
 	self.items = nil
 	if (self.scrollView) then
-		self.scrollView:removeSelf()
-		self.scrollView = nil
+		if (self.scrollView) then
+			self.scrollView:removeSelf()
+			self.scrollView = nil
+		end
 	end
 end

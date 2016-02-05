@@ -35,12 +35,18 @@ function scene:show( event )
 			composer, event.params.mapFileName, event.params.previousMapName)
 		game:create(group)
 	end
+	if (game) then
+		game:entered(group)
+	end
 end
 
 -- Called when scene is about to move offscreen:
 function scene:hide( event )
 	local group = self.view
 
+	if (game) then
+		game:left(group)
+	end
 	if (game) then
 		game:removeSelf()
 		game = nil

@@ -21,12 +21,17 @@ end
 -- Called immediately after scene has moved onscreen:
 function scene:show( event )
 	local group = self.view
-	
+	if (game) then
+		game:entered(group)
+	end
 end
 
 -- Called when scene is about to move offscreen:
 function scene:hide( event )
 	local group = self.view
+	if (game) then
+		game:left(group)
+	end
 end
 
 -- If scene's view is removed, scene:destroy() will be called just prior to:

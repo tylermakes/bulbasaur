@@ -29,12 +29,7 @@ function BulbForest:create(group)
 	self.map:addEventListener("touchTile", self)
 	self.map:addEventListener("triggerTile", self)
 
-	local tools = {}
 	if (self.buildingMapName) then
-		if (globalBuildMode) then
-			tools[1] = {tileName="build", color=BulbColor(0.8, 0.4, 1)}
-		end
-		
 		local loadedData = savingContainer:loadFile(self.buildingMapName)
 		if (loadedData.failure) then
 			print("FAILED TO LOAD DATA FROM:", self.buildingMapName)	-- probably filename doesn't exist
@@ -44,8 +39,6 @@ function BulbForest:create(group)
 			self.map:loadMapFromData(loadedData, self.previousMapName)
 		end
 	else
-		--tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
-
 		local loadedData = savingContainer:loadFile(bulbGameSettings.forestCurrentMap)
 		if (loadedData.failure) then
 			print("FAILED TO LOAD DATA FROM:", bulbGameSettings.forestCurrentMap)	-- probably filename doesn't exist
@@ -65,15 +58,43 @@ function BulbForest:create(group)
 		self.enemies[#self.enemies + 1] = newEnemy
 	end
 
-	print("players items:")
-	for k, v in pairs(self.player.temporaryItems) do
-		print("temp items:", k, v)
-	end
-	self.ui = BulbUI(tools, self.player, mapWidth, 0, self.width/5, self.height, 10, true)
-	self.ui:addEventListener("selectTool", self)
-	self.ui:create(group)
 
 	Runtime:addEventListener("enterFrame", self)
+end
+
+function BulbForest:entered(group)
+	-- triggered when the scene is entered or re-entered
+	-- savingContainer:save()
+
+	if (not self.ui) then
+		local mapWidth = self.width/5*4
+		local tools = {}
+		if (self.buildingMapName) then
+			if (globalBuildMode) then
+				tools[1] = {tileName="build", color=BulbColor(0.8, 0.4, 1)}
+			end
+		else
+			--tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
+		end
+
+		print("players items:")
+		for k, v in pairs(bulbGameSettings.playerData.temporaryItems) do
+			print("temp items:", k, v)
+		end
+
+		self.ui = BulbUI(tools, mapWidth, 0, self.width/5, self.height, 10, true)
+		self.ui:addEventListener("selectTool", self)
+		self.ui:create(group)
+	end
+end
+
+function BulbForest:left( )
+	-- triggered when the scene is entered or re-entered
+	-- savingContainer:save()
+	if (self.ui) then
+		self.ui:removeSelf()
+		self.ui = nil
+	end
 end
 
 function BulbForest:enterFrame()
@@ -121,7 +142,7 @@ function BulbForest:triggerTile(event)
 end
 
 function BulbForest:gatherSeeds(event)
-	self.player:addItem(event.seedType, 1, true)
+	bulbGameSettings.playerData:addItem(event.seedType, 1, true)
 	local tileInfo = bulbBuilderSettings.dirtType
 	self.map:placeTile(event.location.i, event.location.j, tileInfo)
 end

@@ -25,18 +25,34 @@ function BulbGame:create(group)
 	self.map = BulbMap(mapWidth, self.height, rows, columns)
 	self.map:create(group)
 	self.map:addEventListener("selectTile", self)
-
-	local tools = {}
-	tools[1] = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
 	
 	self.player = BulbPlayer(self.map)
-	
-	self.ui = BulbUI(tools, self.player, mapWidth, 0, self.width/5, self.height, 10)
-	self.ui:addEventListener("selectPlant", self)
-	self.ui:addEventListener("selectTool", self)
-	self.ui:create(group)
 
 	Runtime:addEventListener("enterFrame", self)
+end
+
+function BulbGame:entered(group)
+	-- triggered when the scene is entered or re-entered
+	-- savingContainer:save()
+	if (not self.ui) then
+		local mapWidth = self.width/5*4
+		local tools = {}
+		tools[1] = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
+
+		self.ui = BulbUI(tools, mapWidth, 0, self.width/5, self.height, 10)
+		self.ui:addEventListener("selectPlant", self)
+		self.ui:addEventListener("selectTool", self)
+		self.ui:create(group)
+	end
+end
+
+function BulbGame:left( )
+	-- triggered when the scene is entered or re-entered
+	-- savingContainer:save()
+	if (self.ui) then
+		self.ui:removeSelf()
+		self.ui = nil
+	end
 end
 
 function BulbGame:enterFrame()
@@ -76,15 +92,15 @@ function BulbGame:selectTile(event)
 		}
 		self.composer.gotoScene( navigation, options )
 	elseif (self.state == "planting") then 
-		if (self.player.itemBag[self.selectedPlant.tileName].inventory >= 1 and
+		if (bulbGameSettings.playerData.itemBag[self.selectedPlant.tileName] >= 1 and
 			self.map:canPlant(event.i, event.j, self.selectedPlant.tileName)) then
 			self.map:plant(event.i, event.j, self.selectedPlant)
-			self.player:deductItem(self.selectedPlant.tileName, 1)
+			bulbGameSettings.playerData:deductItem(self.selectedPlant.tileName, 1)
 		end
 	elseif (self.state == "tooling") then
 		if (self.map:canHarvest(event.i, event.j)) then
 			local typeHarvested = self.map:harvest(event.i, event.j)
-			self.player:addItem(typeHarvested, 2)
+			bulbGameSettings.playerData:addItem(typeHarvested, 2)
 		end
 	end
 end

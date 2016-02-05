@@ -4,10 +4,9 @@ require("bulb_store_tool")
 require("bulb_color")
 local widget = require "widget"
 
-BulbUI = class(function(c, toolDefinitions, player, x, y, width, height, itemNumber, temporary)
+BulbUI = class(function(c, toolDefinitions, x, y, width, height, itemNumber, temporary)
 	c.x = x
 	c.y = y
-	c.player = player
 	c.width = width
 	c.height = height
 	c.itemNumber = itemNumber
@@ -44,19 +43,19 @@ function BulbUI:create(group)
 	end
 
 	self.items = {}
-	local itemHolder = self.player.itemBag
+	local itemHolder = bulbGameSettings.playerData.itemBag
 	if (self.temporary) then
-		itemHolder = self.player.temporaryItems
+		itemHolder = bulbGameSettings.playerData.temporaryItems
 	end
 	self.totalUniqueStoreItems = 0
 	for k, v in pairs(itemHolder) do
-		self:addStoreItem(k, v.inventory)
+		self:addStoreItem(k, v)
 		self.totalUniqueStoreItems = self.totalUniqueStoreItems + 1
 	end
 
 	group:insert(self.scrollView)
 	
-	self.player:addEventListener("itemUpdated", self)
+	bulbGameSettings.playerData:addEventListener("itemUpdated", self)
 end
 
 function BulbUI:addStoreItem(name, inventory)
@@ -69,6 +68,7 @@ function BulbUI:addStoreItem(name, inventory)
 end
 
 function BulbUI:itemUpdated(event)
+	print("updating: temporary?",self.temporary)
 	if (not self.items[event.type]) then
 		self:addStoreItem(event.type, event.newValue)
 	end
@@ -108,9 +108,20 @@ function BulbUI:selectTool(type)
 	BulbUI.dispatchEvent(self, toolEvent)
 end
 
+function BulbUI:removeAllEventListeners( )
+	for k, v in pairs(self.events) do
+		for i=1, #v do
+			self.events[k][i] = nil
+		end
+		self.events[k] = nil
+	end
+	self.events = nil
+	self.events = {}
+end
+
 function BulbUI:removeSelf()
-	if (self.player) then
-		self.player:removeEventListener("itemUpdated", self)
+	if (bulbGameSettings.playerData) then
+		bulbGameSettings.playerData:removeEventListener("itemUpdated", self)
 	end
 	for i=1, #self.tools do
 		self.tools[i]:removeSelf()
@@ -124,4 +135,5 @@ function BulbUI:removeSelf()
 		self.scrollView:removeSelf()
 		self.scrollView = nil
 	end
+	self:removeAllEventListeners()
 end

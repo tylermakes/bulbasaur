@@ -1,14 +1,14 @@
--save player items, construct inventory and player object from that
--load image assets
--update menu with forest actions (dig, list seeds, )
 
+-update menu with forest actions (dig, list seeds, )
 -"death" of player in forest
 -save\load the current state of the garden
--save\load the current state of your inventory
+
 -save\load your current location (home, forest, garden)
 -game menu
+-do not save continuously, wait until done calling "save"
 -tutorial
 -credits
+-load image assets
 
 DONE:
 !make a migration function for maps (or simpler save?)
@@ -17,3 +17,5 @@ DONE:
 !add navigation tiles to garden map
 !add exit in home to garden
 !slow down animation for player movement
+!save player items, construct inventory and player object from that
+!save\load the current state of your inventory
