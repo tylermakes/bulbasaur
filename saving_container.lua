@@ -57,7 +57,7 @@ function SavingContainer:load()
 end
 
 function SavingContainer:saveFile(data, fileName, directory)
-	print("SAVING FILE?")
+	-- print("SAVING FILE?")
 	if ( not directory ) then
 		directory = system.DocumentsDirectory
 	end

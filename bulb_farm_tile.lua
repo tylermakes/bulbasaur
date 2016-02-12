@@ -8,14 +8,13 @@ BulbFarmTile = class(function(c, i, j, x, y, size)
 	c.y = y
 	c.size = size
 	c.tileView = nil
-	c.harvestCounter = 0
-	c.harvestCountView = nil
+	c.plantedAt = nil
 	c.plantInfo = nil
 	c.state = "dirt"
 	c.grp = nil
 end)
 
-function BulbFarmTile:create(group, plantInfo)
+function BulbFarmTile:create(group, plantInfo, saveData)
 	self.grp = group
 	self.plantInfo = plantInfo
 	local plant
@@ -42,55 +41,52 @@ function BulbFarmTile:create(group, plantInfo)
 	group:insert(self.tileView)
 
 	if (plantInfo and plantInfo.tileName) then
-		self.state = "growing"
-		self.growingState = 0
-		self.harvestCounter = plantInfo.harvestTime
+		if (saveData and saveData.customData.plantedAt) then
+			self.plantedAt = saveData.customData.plantedAt
+		else
+			self.plantedAt = os.time()
+		end
+
+		local currentTime = os.time()
+		local diffTime = os.difftime(currentTime, self.plantedAt)
+		if (diffTime >= self.plantInfo.harvestTime) then
+			self.state = "harvestable"
+		else
+			self.state = "growing"
+		end
+		self:updateImage(diffTime)
 		-- tileView:setFillColor( plant.color.r, plant.color.g, plant.color.b )
-		
-		-- ADD HARVEST COUNT TEXT
-		-- local harvestCountViewOptions = {
-		-- 	text = self.harvestCounter,
-		-- 	x = 0,
-		-- 	y = 0,
-		-- 	width = self.size,
-		-- 	height = self.size,
-		-- 	font = native.systemFont,
-		-- 	fontSize = 24, 
-		-- 	align = "left"
-		-- }
-		-- local harvestCountView = display.newText( harvestCountViewOptions )
-		-- harvestCountView:setFillColor( 0, 0, 0)
-		-- harvestCountView.anchorX = 0;
-		-- harvestCountView.anchorY = 0;
-		-- harvestCountView.x = self.x;
-		-- harvestCountView.y = self.y;
-		-- self.harvestCountView = harvestCountView
-		-- group:insert(self.harvestCountView)
 	end
 end
 
 function BulbFarmTile:update()
 	if (self.state == "growing") then
-		if (self.harvestCounter >= 1) then
-			self.harvestCounter = self.harvestCounter - 1
-			-- self.harvestCountView.text = self.harvestCounter
-		else
+		local currentTime = os.time()
+		local diffTime = os.difftime(currentTime, self.plantedAt)
+		if (diffTime >= self.plantInfo.harvestTime) then
 			self.state = "harvestable"
-			-- self.harvestCountView.text = "HARVEST"
 		end
-		self:updateImage()
+		self:updateImage(diffTime)
 	end
 end
 
-function BulbFarmTile:updateImage()
+function BulbFarmTile:getSaveData()
+	local saveData = { tileName = "none"}
+	if (self.plantInfo) then
+		saveData = {tileName = self.plantInfo.tileName, customData = {plantedAt = self.plantedAt}}
+	end
+	return saveData
+end
+
+function BulbFarmTile:updateImage(diffTime)
 	local tileView
 	if (self.state == "growing") then
-		if (self.harvestCounter < math.floor(self.plantInfo.harvestTime/3)) then
-			tileView = display.newImage(spriteSheetForest, 4)
-		elseif (self.harvestCounter < math.floor(self.plantInfo.harvestTime*2/3)) then
+		if (diffTime < math.floor(self.plantInfo.harvestTime/3)) then
+			tileView = display.newImage(spriteSheetForest, 2)
+		elseif (diffTime < math.floor(self.plantInfo.harvestTime*2/3)) then
 			tileView = display.newImage(spriteSheetForest, 3)
 		else
-			tileView = display.newImage(spriteSheetForest, 2)
+			tileView = display.newImage(spriteSheetForest, 4)
 		end
 	elseif (self.state == "harvestable") then
 		tileView = display.newImage(spriteSheetForest, 5)
@@ -121,9 +117,5 @@ function BulbFarmTile:removeSelf()
 	if (self.tileView) then
 		self.tileView:removeSelf()
 		self.tileView = nil
-	end
-	if (self.harvestCountView) then
-		self.harvestCountView:removeSelf()
-		self.harvestCountView = nil
 	end
 end

@@ -68,7 +68,6 @@ function BulbUI:addStoreItem(name, inventory)
 end
 
 function BulbUI:itemUpdated(event)
-	print("updating: temporary?",self.temporary)
 	if (not self.items[event.type]) then
 		self:addStoreItem(event.type, event.newValue)
 	end

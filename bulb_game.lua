@@ -13,6 +13,7 @@ BulbGame = class(function(c, width, height, composer)
 	c.selectedPlant = nil
 	c.selectTool = nil
 	c.composer = composer
+	c.saveTimer = 0
 end)
 
 function BulbGame:create(group)
@@ -44,6 +45,9 @@ function BulbGame:entered(group)
 		self.ui:addEventListener("selectTool", self)
 		self.ui:create(group)
 	end
+	if (not bulbGameSettings.playerData.diedInForest) then
+		bulbGameSettings.playerData:keepTempItems()
+	end
 end
 
 function BulbGame:left( )
@@ -61,6 +65,12 @@ end
 
 function BulbGame:update()
 	self.map:update()
+	if (self.saveTimer <= 0) then
+		self.saveTimer = 30
+		savingContainer:saveFile(self.map:getSaveData(), bulbGameSettings.gardenFileName)
+	else
+		self.saveTimer = self.saveTimer - 1
+	end
 end
 
 function BulbGame:selectPlant(data)

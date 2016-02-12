@@ -1,5 +1,4 @@
 require("class")
-require("bulb_map")
 require("bulb_ui")
 require("bulb_player")
 require("bulb_living_room")

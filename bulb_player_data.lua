@@ -7,6 +7,8 @@ BulbPlayerData = class(function(c, map)
 
 	c.events ={}
 
+	c.diedInForest = false;
+
 	-- for k, v in pairs(bulbGameSettings.types) do
 	-- 	c.itemBag[k] = { name=k, inventory=math.random(30) }
 	-- end
@@ -22,6 +24,27 @@ end
 
 function BulbPlayerData:getGameData()
 	return {inventory=self.itemBag, temporaryItems=self.temporaryItems}
+end
+
+function BulbPlayerData:keepTempItems()
+	for k, v in pairs(self.temporaryItems) do
+		if (self.itemBag[k]) then
+			self.itemBag[k] = self.itemBag[k] + self.temporaryItems[k]
+		else
+			self.itemBag[k] = self.temporaryItems[k]
+		end
+		itemUsedEvent = {
+			name ="itemUpdated",
+			status = "added",
+			type = k,
+			temporary = false,
+			newValue = self.itemBag[k]
+		}
+		
+		self:dispatchEvent(itemUsedEvent)
+	end
+	self.temporaryItems = {}
+	savingContainer:save()
 end
 
 function BulbPlayerData:deductItem(type, num, temporary)

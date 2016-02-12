@@ -25,17 +25,9 @@ function BulbMap:create(group)
 	self.layers[1] = {}
 	self.layers[2] = {}
 
-	for i=1, self.columns do
-		self.layers[1][i] = {}
-		self.layers[2][i] = {}
-		for j=1, self.rows do
-			self.layers[1][i][j] = BulbFarmTile(i, j,
-				(i-1) * self.tileSize,(j-1) * self.tileSize, self.tileSize)
-			self.layers[1][i][j]:create(self.layerGroups[1])
 
-			self.layers[2][i][j] = nil
-		end
-	end
+	local loadedData = savingContainer:loadFile(bulbGameSettings.gardenFileName)	
+	self:loadMapFromData(loadedData)
 
 	for k=1, #self.navigationTiles do
 		local tile = self.navigationTiles[k]
@@ -53,6 +45,29 @@ function BulbMap:create(group)
 	group:insert(self.tileGroup)
 end
 
+function BulbMap:loadMapFromData( data )
+	local hasData = not data.failure
+
+	for i=1, self.columns do
+		self.layers[1][i] = {}
+		self.layers[2][i] = {}
+		for j=1, self.rows do
+			local tileInfo = nil
+			local saveData = nil
+			if (hasData) then
+				tileInfo = bulbGameSettings:getItemByName(data.layers[1][i][j].tileName)
+				saveData = data.layers[1][i][j]
+			end
+
+			self.layers[1][i][j] = BulbFarmTile(i, j,
+				(i-1) * self.tileSize,(j-1) * self.tileSize, self.tileSize)
+			self.layers[1][i][j]:create(self.layerGroups[1], tileInfo, saveData)
+
+			self.layers[2][i][j] = nil
+		end
+	end
+end
+
 function BulbMap:update()
 	for k=1, #self.layers do
 		for i=1, #self.layers[k] do
@@ -63,6 +78,20 @@ function BulbMap:update()
 			end
 		end
 	end
+end
+
+function BulbMap:getSaveData()
+	local saveData = {}
+	saveData.layers = {}
+	saveData.layers[1] = {}
+	for i=1, self.columns do
+		saveData.layers[1][i] = {}
+		for j=1, self.rows do
+			saveData.layers[1][i][j] = self.layers[1][i][j]:getSaveData()
+		end
+	end
+
+	return saveData
 end
 
 function BulbMap:getTileSize( )
