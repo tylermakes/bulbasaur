@@ -44,7 +44,7 @@ function BulbPlayerData:keepTempItems()
 		self:dispatchEvent(itemUsedEvent)
 	end
 	self.temporaryItems = {}
-	savingContainer:save()
+	bulbGameSettings:saveGame()
 end
 
 function BulbPlayerData:deductItem(type, num, temporary)
@@ -67,7 +67,7 @@ function BulbPlayerData:deductItem(type, num, temporary)
 		newValue = newValue
 	}
 
-	savingContainer:save()
+	bulbGameSettings:saveGame()
 	self:dispatchEvent(itemUsedEvent)
 end
 
@@ -92,7 +92,7 @@ function BulbPlayerData:addItem(type, num, temporary)
 		newValue = newValue
 	}
 	
-	savingContainer:save()
+	bulbGameSettings:saveGame()
 	self:dispatchEvent(itemUsedEvent)
 end
 

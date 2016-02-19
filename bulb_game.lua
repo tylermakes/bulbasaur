@@ -34,7 +34,6 @@ end
 
 function BulbGame:entered(group)
 	-- triggered when the scene is entered or re-entered
-	-- savingContainer:save()
 	if (not self.ui) then
 		local mapWidth = self.width/5*4
 		local tools = {}
@@ -52,7 +51,6 @@ end
 
 function BulbGame:left( )
 	-- triggered when the scene is entered or re-entered
-	-- savingContainer:save()
 	if (self.ui) then
 		self.ui:removeSelf()
 		self.ui = nil

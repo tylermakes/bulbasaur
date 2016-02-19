@@ -6,6 +6,14 @@ BulbGameSettings = class(function(c)
 	c.mapNames = {}
 	c.playerData = BulbPlayerData()
 
+	local currentSaveFile = 1
+
+	local saveFiles = {}
+	saveFiles[1] = {empty=true}
+	saveFiles[2] = {empty=true}
+	saveFiles[3] = {empty=true}
+	c.saveFiles = saveFiles
+
 	local types = {}
 	types["strawberry"] = { id=1, tileName="strawberry", harvestTime=60, cost=1001, color=BulbColor(1,0,0) }
 	types["orange"] = { id=2, tileName="orange", harvestTime=30, cost=1002, color=BulbColor(1,0.6,0) }
@@ -47,13 +55,38 @@ end)
 function BulbGameSettings:getGameData()
 	return {
 		mapNames = self.mapNames,
-		playerData = self.playerData:getGameData()
+		saveFiles = self.saveFiles,
+		currentSaveFile = self.currentSaveFile
 	}
+end
+
+function BulbGameSettings:saveGame( )
+	local currentSave = self.saveFiles[self.currentSaveFile]
+	savingContainer:saveFile({
+			playerData = self.playerData:getGameData()
+		}, "save_data"..self.currentSaveFile)
+end
+
+function BulbGameSettings:loadGame( idx )
+	self.currentSaveFile = idx
+	local loadedData = savingContainer:loadFile("save_data"..idx)
+	self.playerData:setupFromGameData(loadedData.playerData)
 end
 
 function BulbGameSettings:setupFromData(mainData)
 	self.mapNames = mainData.mapNames
-	self.playerData:setupFromGameData(mainData.playerData)
+	self.saveFiles = mainData.saveFiles
+	self.currentSaveFile = mainData.currentSaveFile
+end
+
+function BulbGameSettings:getOpenSave( )
+	for i=1, #self.saveFiles do
+		if (self.saveFiles[i].empty) then
+			return i
+		end
+	end
+
+	return 0	-- no empty save file
 end
 
 function BulbGameSettings:addMapName(name)

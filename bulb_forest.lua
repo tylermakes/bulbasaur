@@ -64,7 +64,6 @@ end
 
 function BulbForest:entered(group)
 	-- triggered when the scene is entered or re-entered
-	-- savingContainer:save()
 
 	if (not self.ui) then
 		local mapWidth = self.width/5*4
@@ -90,7 +89,6 @@ end
 
 function BulbForest:left( )
 	-- triggered when the scene is entered or re-entered
-	-- savingContainer:save()
 	if (self.ui) then
 		self.ui:removeSelf()
 		self.ui = nil
