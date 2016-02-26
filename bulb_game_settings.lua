@@ -1,10 +1,12 @@
 require("class")
 require("bulb_color")
 require("bulb_player_data")
+require("basic_init_file")
 
 BulbGameSettings = class(function(c)
 	c.mapNames = {}
 	c.playerData = BulbPlayerData()
+	c.inGame = false
 
 	local currentSaveFile = 1
 
@@ -15,10 +17,10 @@ BulbGameSettings = class(function(c)
 	c.saveFiles = saveFiles
 
 	local types = {}
-	types["strawberry"] = { id=1, tileName="strawberry", harvestTime=60, cost=1001, color=BulbColor(1,0,0) }
+	types["strawberry"] = { id=1, tileName="strawberry", harvestTime=60, cost=1001, color=BulbColor(1,0,0), artStates={2,3,4,5} }
 	types["orange"] = { id=2, tileName="orange", harvestTime=30, cost=1002, color=BulbColor(1,0.6,0) }
 	types["avocado"] = { id=3, tileName="avocado", harvestTime=20, cost=1003, color=BulbColor(0,0.6,0) }
-	types["blueberries"] = { id=4, tileName="blueberries", harvestTime=50, cost=1004, color=BulbColor(0,0,1) }
+	types["blueberries"] = { id=4, tileName="blueberries", harvestTime=50, cost=1004, color=BulbColor(0,0,1), artStates={2,3,4,6} }
 	types["lemon"] = { id=5, tileName="lemon", harvestTime=120, cost=1005, color=BulbColor(1,1,0.6) }
 	types["carrots"] = { id=6, tileName="carrots", harvestTime=90, cost=1007, color=BulbColor(1,0.8,0) }
 	types["beets"] = { id=7, tileName="beets", harvestTime=75, cost=10010, color=BulbColor(0.8,0,.5) }
@@ -52,15 +54,37 @@ BulbGameSettings = class(function(c)
 	c.gardenFileName = "garden_data";
 end)
 
+function BulbGameSettings:getGardenFileName( )
+	return self.gardenFileName..self.currentSaveFile
+end
+
 function BulbGameSettings:getGameData()
 	return {
 		mapNames = self.mapNames,
 		saveFiles = self.saveFiles,
-		currentSaveFile = self.currentSaveFile
+		currentSaveFile = self.currentSaveFile,
+		inGame = self.inGame
 	}
 end
 
+function BulbGameSettings:setupFromData(mainData)
+	self.mapNames = mainData.mapNames
+	self.saveFiles = mainData.saveFiles
+	self.currentSaveFile = mainData.currentSaveFile
+	self.inGame = mainData.inGame
+
+	if (#mainData.mapNames <= 0) then
+		bulbGameSettings:addMapName("init")
+		basicInitData.fileName = "init"
+		savingContainer:saveFile(basicInitData, "init")
+	end
+end
+
 function BulbGameSettings:saveGame( )
+	if (globalBuildMode) then
+		-- do not try to save game when testing a forest map
+		return
+	end
 	local currentSave = self.saveFiles[self.currentSaveFile]
 	savingContainer:saveFile({
 			playerData = self.playerData:getGameData()
@@ -73,12 +97,6 @@ function BulbGameSettings:loadGame( idx )
 	self.playerData:setupFromGameData(loadedData.playerData)
 end
 
-function BulbGameSettings:setupFromData(mainData)
-	self.mapNames = mainData.mapNames
-	self.saveFiles = mainData.saveFiles
-	self.currentSaveFile = mainData.currentSaveFile
-end
-
 function BulbGameSettings:getOpenSave( )
 	for i=1, #self.saveFiles do
 		if (self.saveFiles[i].empty) then
@@ -87,6 +105,22 @@ function BulbGameSettings:getOpenSave( )
 	end
 
 	return 0	-- no empty save file
+end
+
+function BulbGameSettings:isValidSave( idx )
+	return self.saveFiles[idx] and not self.saveFiles[idx].empty
+end
+
+function BulbGameSettings:goToCurrentLocation( composer )
+	if (bulbGameSettings.playerData.currentLocation == "garden") then
+		composer.gotoScene( "bulb_game_scene" )
+	elseif (bulbGameSettings.playerData.currentLocation == "home") then
+		composer.gotoScene( "bulb_home_scene" )
+	elseif (bulbGameSettings.playerData.currentLocation == "forest") then
+		composer.gotoScene( "bulb_forest_scene" )
+	else
+		composer.gotoScene( "bulb_game_scene" )
+	end
 end
 
 function BulbGameSettings:addMapName(name)

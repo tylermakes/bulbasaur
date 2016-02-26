@@ -71,8 +71,11 @@ function BulbForest:entered(group)
 		if (self.buildingMapName) then
 			if (globalBuildMode) then
 				tools[1] = {tileName="build", color=BulbColor(0.8, 0.4, 1)}
+			else
+				tools[1] = {tileName="exit", color=BulbColor(0.6, 0.6, 0.6)}
 			end
 		else
+			tools[1] = {tileName="exit", color=BulbColor(0.6, 0.6, 0.6)}
 			--tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
 		end
 
@@ -85,6 +88,9 @@ function BulbForest:entered(group)
 		self.ui:addEventListener("selectTool", self)
 		self.ui:create(group)
 	end
+
+	bulbGameSettings.playerData.currentLocation = "forest"
+	bulbGameSettings:saveGame()
 end
 
 function BulbForest:left( )
@@ -118,8 +124,10 @@ end
 function BulbForest:selectTool(data)
 	if (data.type == "build") then
 		self.composer.gotoScene( "bulb_builder_scene", "fade", 500 )
-	elseif (data.type == "home") then
-		self.composer.gotoScene( "bulb_home_scene", "fade", 500 )
+	elseif (data.type == "exit") then
+		self.composer.gotoScene( "bulb_menu_scene", "fade", 500 )
+	-- elseif (data.type == "home") then
+	-- 	self.composer.gotoScene( "bulb_home_scene", "fade", 500 )
 	else
 		print("unknown item:", data.type)
 	end

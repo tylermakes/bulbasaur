@@ -26,7 +26,8 @@ function BulbMap:create(group)
 	self.layers[2] = {}
 
 
-	local loadedData = savingContainer:loadFile(bulbGameSettings.gardenFileName)	
+	print("creating map:", bulbGameSettings:getGardenFileName())
+	local loadedData = savingContainer:loadFile(bulbGameSettings:getGardenFileName())	
 	self:loadMapFromData(loadedData)
 
 	for k=1, #self.navigationTiles do

@@ -18,12 +18,16 @@ savingContainer = SavingContainer(bulbGameSettings)	--param must have :getGameDa
 globalAStar = BulbAStar()
 savingContainer:load()
 
-globalBuildMode = false
+globalBuildMode = true
 
 local composer = require( "composer" )
 if (globalBuildMode) then
-	composer.gotoScene( "bulb_menu_scene" )
-	--composer.gotoScene( "bulb_builder_scene" )
+	composer.gotoScene( "bulb_builder_scene" )
 else
-	composer.gotoScene( "bulb_menu_scene" )
+	if (bulbGameSettings.inGame and not bulbGameSettings.saveFiles[bulbGameSettings.currentSaveFile].empty) then
+		bulbGameSettings:loadGame(bulbGameSettings.currentSaveFile)
+		bulbGameSettings:goToCurrentLocation(composer)
+	else
+		composer.gotoScene( "bulb_menu_scene" )
+	end
 end

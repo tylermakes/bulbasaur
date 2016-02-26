@@ -86,6 +86,13 @@ end
 -- Called immediately after scene has moved onscreen:
 function scene:show( event )
 	local group = self.view
+
+	-- clear out old data and mark that not in game
+	bulbGameSettings.inGame = false
+	composer.removeScene("bulb_game_scene")
+	composer.removeScene("bulb_forest_scene")
+	composer.removeScene("bulb_home_scene")
+	savingContainer:save()
 end
 
 -- Called when scene is about to move offscreen:

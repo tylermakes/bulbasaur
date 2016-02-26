@@ -1,11 +1,9 @@
 -game menus
--save/load game
--start new game
+-add sound effects and music
 
 -update menu with forest actions (dig, list seeds, )
 -"death" of player in forest
 
--save\load your current location (home, forest, garden)
 -do not save continuously, wait until done calling "save"
 -tutorial
 -credits
@@ -21,3 +19,7 @@ DONE:
 !save player items, construct inventory and player object from that
 !save\load the current state of your inventory
 !save\load the current state of the garden
+!-save/load game
+!-start new game
+!exit button
+!save\load your current location (home, forest, garden)

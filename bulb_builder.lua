@@ -2,7 +2,6 @@ require("class")
 require("bulb_builder_map")
 require("bulb_builder_ui")
 require("bulb_file_name_popup")
-require("basic_init_file")
 
 BulbBuilder = class(function(c, width, height, composer)
 	c.width = width
@@ -34,11 +33,8 @@ function BulbBuilder:create(group)
 	Runtime:addEventListener("enterFrame", self)
 	group:insert(self.fullDisplayGroup)
 
-	-- hack to load "init" map
+	-- load "init" map on startup
 	local loadedData = savingContainer:loadFile("init")
-	if (loadedData.failure) then
-		loadedData = basicInitData
-	end
 	self.map:loadMapFromData(loadedData)
 end
 
@@ -48,7 +44,7 @@ function BulbBuilder:entered(group)
 	if (not self.ui) then
 		local mapWidth = self.width/5*4
 		local tools = {}
-		tools[1] = {tileName="home", color=BulbColor(0.8, 0.4, 1)}
+		tools[1] = {tileName="main menu", color=BulbColor(0.8, 0.4, 1)}
 		tools[2] = {tileName="save", color=BulbColor(0.6, 0.6, 0.4)}
 		tools[3] = {tileName="load", color=BulbColor(0.6, 0.4, 0.6)}
 		tools[4] = {tileName="clear", color=BulbColor(0.2, 0.4, 0.2)}
@@ -83,9 +79,9 @@ function BulbBuilder:selectTile(data)
 end
 
 function BulbBuilder:selectTool(data)
-	if (data.type == "home") then
+	if (data.type == "main menu") then
 		globalBuildMode = false -- once you leave, you can't come back
-		self.composer.gotoScene( "bulb_home_scene", "fade", 500 )
+		self.composer.gotoScene( "bulb_menu_scene", "fade", 500 )
 	elseif (data.type == "save") then
 		if (not self.map.mapName) then
 			self:clearFilePopup()

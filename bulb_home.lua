@@ -37,6 +37,7 @@ function BulbHome:entered(group)
 	if (not self.ui) then
 		local mapWidth = self.width/5*4
 		local tools = {}
+		tools[1] = {tileName="exit", color=BulbColor(0.6, 0.6, 0.6)}
 		--tools[1] = {tileName="garden", color=BulbColor(0.8, 0.4, 1)}
 		--tools[2] = {tileName="forest", color=BulbColor(0.7, 0.5, 1)}
 		--tools[2] = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
@@ -45,6 +46,9 @@ function BulbHome:entered(group)
 		self.ui:addEventListener("selectTool", self)
 		self.ui:create(group)
 	end
+
+	bulbGameSettings.playerData.currentLocation = "home"
+	bulbGameSettings:saveGame()
 end
 
 function BulbHome:left( )
@@ -73,6 +77,8 @@ function BulbHome:selectTool(data)
 		self.composer.gotoScene( "bulb_game_scene", "fade", 500 )
 	elseif (data.type == "forest") then
 		self.composer.gotoScene( "bulb_forest_scene", "fade", 500 )
+	elseif (data.type == "exit") then
+		self.composer.gotoScene( "bulb_menu_scene", "fade", 500 )
 	else
 		self.state = "tooling"
 		self.selectedTool = data.type

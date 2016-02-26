@@ -82,16 +82,16 @@ function BulbFarmTile:updateImage(diffTime)
 	local tileView
 	if (self.state == "growing") then
 		if (diffTime < math.floor(self.plantInfo.harvestTime/3)) then
-			tileView = display.newImage(spriteSheetForest, 2)
+			tileView = display.newImage(spriteSheetForest, self.plantInfo.artStates[1])
 		elseif (diffTime < math.floor(self.plantInfo.harvestTime*2/3)) then
-			tileView = display.newImage(spriteSheetForest, 3)
+			tileView = display.newImage(spriteSheetForest, self.plantInfo.artStates[2])
 		else
-			tileView = display.newImage(spriteSheetForest, 4)
+			tileView = display.newImage(spriteSheetForest, self.plantInfo.artStates[3])
 		end
 	elseif (self.state == "harvestable") then
-		tileView = display.newImage(spriteSheetForest, 5)
+		tileView = display.newImage(spriteSheetForest, self.plantInfo.artStates[4])
 	else 
-		tileView = display.newImage(spriteSheetForest, 1)
+		tileView = display.newImage(spriteSheetForest, 1)	-- dirt state
 	end
 
 	tileView.anchorX = 0;

@@ -11,7 +11,7 @@ local scene = composer.newScene()
 local widget = require "widget"
 
 local background
-local playBtn
+local playBtns
 local cancelButton
 local overwriteText
 local isOverwritingSave
@@ -21,8 +21,15 @@ local function onSelectedSave(event)
 		bulbGameSettings.currentSaveFile = event.target.selectedIndex
 		composer.gotoScene( "bulb_save_name_scene", "fade", 500 )
 	else
-		bulbGameSettings:loadGame(event.target.selectedIndex)
-		composer.gotoScene( "bulb_game_scene", "fade", 500 )
+		if (bulbGameSettings:isValidSave(event.target.selectedIndex)) then
+			bulbGameSettings:loadGame(event.target.selectedIndex)
+			bulbGameSettings.inGame = true
+			savingContainer:save()
+			bulbGameSettings:goToCurrentLocation(composer)
+		else
+			-- they're trying to load an empty file
+			print(event.target.selectedIndex.." is not a valid save file")
+		end
 	end
 
 	return true
@@ -36,7 +43,7 @@ end
 
 local function makePlayButton(i, y, group)
 	-- create a widget button (which will loads level1.lua on release)
-	playBtn = widget.newButton{
+	local playBtn = widget.newButton{
 		label=bulbGameSettings.saveFiles[i].name or "Empty",
 		labelColor = { default={255}, over={128} },
 		fontSize = 48,
@@ -48,6 +55,7 @@ local function makePlayButton(i, y, group)
 	playBtn.selectedIndex = i
 	playBtn.x = display.contentWidth*0.5
 	playBtn.y = y
+	playBtns[i] = playBtn
 	group:insert(playBtn)
 end
 
@@ -78,6 +86,7 @@ function scene:create( event )
 	group:insert( background )
 	group:insert( cancelButton )
 
+	playBtns = {}
 	makePlayButton(1, display.contentHeight - 525, group)
 	makePlayButton(2, display.contentHeight - 425, group)
 	makePlayButton(3, display.contentHeight - 325, group)
@@ -102,6 +111,11 @@ function scene:show( event )
 		else
 			isOverwritingSave = false
 		end
+
+		-- update labels for newly created saves
+		playBtns[1]:setLabel(bulbGameSettings.saveFiles[1].name or "Empty")
+		playBtns[2]:setLabel(bulbGameSettings.saveFiles[2].name or "Empty")
+		playBtns[3]:setLabel(bulbGameSettings.saveFiles[3].name or "Empty")
 	end
 end
 
@@ -123,9 +137,9 @@ function scene:destroy( event )
 		background:removeSelf()
 		background = nil
 	end
-	if playBtn then
-		playBtn:removeSelf()
-		playBtn = nil
+	for i=1, #playBtns do
+		playBtns[i]:removeSelf()
+		playBtns[i] = nil 
 	end
 	if cancelButton then
 		cancelButton:removeSelf()

@@ -20,6 +20,7 @@ local function onStartNewGame()
 		bulbGameSettings.saveFiles[bulbGameSettings.currentSaveFile].name = nameView.text
 		bulbGameSettings.saveFiles[bulbGameSettings.currentSaveFile].empty = false
 		bulbGameSettings.playerData = BulbPlayerData()
+		bulbGameSettings.inGame = true
 		bulbGameSettings:saveGame()
 		savingContainer:save()
 		composer.gotoScene( "bulb_game_scene", "fade", 500 )

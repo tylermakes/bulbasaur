@@ -22,7 +22,6 @@ function BulbGame:create(group)
 	local mapWidth = self.width/5*4
 	local columns = math.floor(mapWidth/size)
 
-
 	self.map = BulbMap(mapWidth, self.height, rows, columns)
 	self.map:create(group)
 	self.map:addEventListener("selectTile", self)
@@ -37,15 +36,20 @@ function BulbGame:entered(group)
 	if (not self.ui) then
 		local mapWidth = self.width/5*4
 		local tools = {}
-		tools[1] = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
+		tools[1] = {tileName="exit", color=BulbColor(0.7, 0.7, 0.7)}
+		tools[2] = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
 
 		self.ui = BulbUI(tools, mapWidth, 0, self.width/5, self.height, 10)
 		self.ui:addEventListener("selectPlant", self)
 		self.ui:addEventListener("selectTool", self)
 		self.ui:create(group)
 	end
+	bulbGameSettings.playerData.currentLocation = "garden"
 	if (not bulbGameSettings.playerData.diedInForest) then
 		bulbGameSettings.playerData:keepTempItems()
+		--keepTempItems already calls gameSettings:saveGame(), so we don't have to
+	else
+		bulbGameSettings:saveGame() -- save game to record current location
 	end
 end
 
@@ -65,7 +69,7 @@ function BulbGame:update()
 	self.map:update()
 	if (self.saveTimer <= 0) then
 		self.saveTimer = 30
-		savingContainer:saveFile(self.map:getSaveData(), bulbGameSettings.gardenFileName)
+		savingContainer:saveFile(self.map:getSaveData(), bulbGameSettings:getGardenFileName())
 	else
 		self.saveTimer = self.saveTimer - 1
 	end
@@ -77,12 +81,14 @@ function BulbGame:selectPlant(data)
 end
 
 function BulbGame:selectTool(data)
-	-- if (data.type == "home") then
+	if (data.type == "exit") then
+		self.composer.gotoScene( "bulb_menu_scene", "fade", 500 )
+	-- else if (data.type == "home") then
 	-- 	self.composer.gotoScene( "bulb_home_scene", "fade", 500 )
-	-- else
+	else
 		self.state = "tooling"
 		self.selectedTool = data.type
-	-- end
+	end
 end
 
 function BulbGame:selectTile(event)
