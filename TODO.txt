@@ -1,3 +1,5 @@
+-build procedurally generated forest
+-add dialogue and "level" progression
 -game menus
 -add sound effects and music
 

@@ -14,6 +14,7 @@ end)
 
 function BulbForestTile:create(group, tileInfo, customData)
 	self.tileInfo = tileInfo or bulbBuilderSettings.dirtType
+	
 	local tileView
 	if (self.tileInfo.tileName == "REPLACE_THIS_LATER") then
 		tileView = display.newImage(spriteSheetForest, 1)

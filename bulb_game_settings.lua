@@ -2,11 +2,20 @@ require("class")
 require("bulb_color")
 require("bulb_player_data")
 require("basic_init_file")
+require("bulb_map_generator")
 
 BulbGameSettings = class(function(c)
 	c.mapNames = {}
+	c.generatedMapData = {}
+	-- generated map {filename="generated + mapNum", mapNum=1, location={1,1}}
+	c.currentMapNum = 0
 	c.playerData = BulbPlayerData()
 	c.inGame = false
+
+	c.rows = 15
+	c.size = display.contentHeight/c.rows
+	c.mapWidth = display.contentWidth/5*4
+	c.columns = math.floor(c.mapWidth/c.size)
 
 	local currentSaveFile = 1
 
@@ -72,6 +81,7 @@ function BulbGameSettings:setupFromData(mainData)
 	self.saveFiles = mainData.saveFiles
 	self.currentSaveFile = mainData.currentSaveFile
 	self.inGame = mainData.inGame
+	self.generatedMapData = mainData.generatedMapData
 
 	if (#mainData.mapNames <= 0) then
 		bulbGameSettings:addMapName("init")
@@ -87,7 +97,9 @@ function BulbGameSettings:saveGame( )
 	end
 	local currentSave = self.saveFiles[self.currentSaveFile]
 	savingContainer:saveFile({
-			playerData = self.playerData:getGameData()
+			playerData = self.playerData:getGameData(),
+			generatedMapData = self.generatedMapData,
+			currentMapNum = self.currentMapNum
 		}, "save_data"..self.currentSaveFile)
 end
 
@@ -95,6 +107,8 @@ function BulbGameSettings:loadGame( idx )
 	self.currentSaveFile = idx
 	local loadedData = savingContainer:loadFile("save_data"..idx)
 	self.playerData:setupFromGameData(loadedData.playerData)
+	self.generatedMapData = loadedData.generatedMapData
+	self.currentMapNum = loadedData.currentMapNum
 end
 
 function BulbGameSettings:getOpenSave( )
@@ -137,6 +151,25 @@ function BulbGameSettings:addMapName(name)
 		self.mapNames[#self.mapNames + 1] = name
 	end
 	savingContainer:save()
+end
+
+function BulbGameSettings:resetGeneratedMap(forestNav, location)
+	self.currentMapNum = 1
+	self.generatedMapData = {}
+	self:generateMap(1, 1, 1, {x = forestNav.i, y = forestNav.j, name = location})
+end
+
+function BulbGameSettings:generateMap(currentMapNum, x, y, previousLocation)
+	local map = BulbMapGenerator:generateMap(self.rows, self.columns, self.size, previousLocation)
+	local mapData = {
+						filename="generated"..currentMapNum,
+						mapNum=currentMapNum,
+						location={x, y}
+					}
+	map.mapName = mapData.filename
+	self.generatedMapData[x..","..y] = mapData
+	bulbGameSettings:saveGame()
+	savingContainer:saveFile(map, "generated_map"..currentMapNum)
 end
 
 function BulbGameSettings:getItemByID(id)

@@ -25,8 +25,6 @@ function BulbMap:create(group)
 	self.layers[1] = {}
 	self.layers[2] = {}
 
-
-	print("creating map:", bulbGameSettings:getGardenFileName())
 	local loadedData = savingContainer:loadFile(bulbGameSettings:getGardenFileName())	
 	self:loadMapFromData(loadedData)
 

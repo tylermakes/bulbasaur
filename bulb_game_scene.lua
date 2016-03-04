@@ -14,6 +14,7 @@ local game
 -- Called when the scene's view does not exist:
 function scene:create( event )
 	local group = self.view
+
 	game = BulbGame(display.contentWidth, display.contentHeight, composer)
 	game:create(group)
 end

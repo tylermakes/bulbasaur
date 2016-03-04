@@ -19,7 +19,7 @@ function scene:create( event )
 	end
 	if (not game) then
 		game = BulbForest(display.contentWidth, display.contentHeight,
-			composer, event.params.mapFileName, event.params.previousMapName)
+			composer, event.params.mapFileName, event.params.previousMapName, event.params.navLoc)
 		game:create(group)
 	end
 end

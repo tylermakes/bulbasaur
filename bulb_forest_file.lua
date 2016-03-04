@@ -4,8 +4,7 @@ require("bulb_ui")
 require("bulb_player")
 require("bulb_enemy")
 
-BulbForest = class(function(c, width, height, composer,
-							buildingMapName, previousMapName, navLoc)
+BulbForestFile = class(function(c, width, height, composer, buildingMapName, previousMapName)
 	c.width = width
 	c.height = height
 	c.map = nil
@@ -17,10 +16,9 @@ BulbForest = class(function(c, width, height, composer,
 	c.previousMapName = previousMapName
 	c.composer = composer
 	c.enemies = {}
-	c.navLoc = navLoc
 end)
 
-function BulbForest:create(group)
+function BulbForestFile:create(group)
 	local rows = 15
 	local size = self.height/rows
 	local mapWidth = self.width/5*4
@@ -64,7 +62,7 @@ function BulbForest:create(group)
 	Runtime:addEventListener("enterFrame", self)
 end
 
-function BulbForest:entered(group)
+function BulbForestFile:entered(group)
 	-- triggered when the scene is entered or re-entered
 
 	if (not self.ui) then
@@ -95,7 +93,7 @@ function BulbForest:entered(group)
 	bulbGameSettings:saveGame()
 end
 
-function BulbForest:left( )
+function BulbForestFile:left( )
 	-- triggered when the scene is entered or re-entered
 	if (self.ui) then
 		self.ui:removeSelf()
@@ -103,11 +101,11 @@ function BulbForest:left( )
 	end
 end
 
-function BulbForest:enterFrame()
+function BulbForestFile:enterFrame()
 	self:update()
 end
 
-function BulbForest:update()
+function BulbForestFile:update()
 	self.map:update()
 	self.player:update()
 	for i=1, #self.enemies do
@@ -123,7 +121,7 @@ end
 ----------------------------------
 -- BEGIN CUSTOM EVENT HANDLERS
 ----------------------------------
-function BulbForest:selectTool(data)
+function BulbForestFile:selectTool(data)
 	if (data.type == "build") then
 		self.composer.gotoScene( "bulb_builder_scene", "fade", 500 )
 	elseif (data.type == "exit") then
@@ -135,11 +133,11 @@ function BulbForest:selectTool(data)
 	end
 end
 
-function BulbForest:touchTile(event)
+function BulbForestFile:touchTile(event)
 	self.player:setTargetLocation(event)
 end
 
-function BulbForest:triggerTile(event)
+function BulbForestFile:triggerTile(event)
 	if (event.subtype == "navigate") then
 		self:navigate(event)
 	elseif (event.subtype == "seeds") then
@@ -149,13 +147,13 @@ function BulbForest:triggerTile(event)
 	end
 end
 
-function BulbForest:gatherSeeds(event)
+function BulbForestFile:gatherSeeds(event)
 	bulbGameSettings.playerData:addItem(event.seedType, 1, true)
 	local tileInfo = bulbBuilderSettings.dirtType
 	self.map:placeTile(event.location.i, event.location.j, tileInfo)
 end
 
-function BulbForest:navigate(event)
+function BulbForestFile:navigate(event)
 	if ( string.find(event.nav, '_scene')) then
 		if (globalBuildMode and
 			(event.nav == "bulb_home_scene" or
@@ -182,7 +180,7 @@ end
 -- END CUSTOM EVENT HANDLERS
 ----------------------------------
 
-function BulbForest:removeSelf()
+function BulbForestFile:removeSelf()
 	Runtime:removeEventListener("enterFrame", self)
 	if (self.map) then
 		self.map:removeSelf()

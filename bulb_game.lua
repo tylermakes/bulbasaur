@@ -44,7 +44,9 @@ function BulbGame:entered(group)
 		self.ui:addEventListener("selectTool", self)
 		self.ui:create(group)
 	end
+
 	bulbGameSettings.playerData.currentLocation = "garden"
+	bulbGameSettings:resetGeneratedMap(self.map.navigationTiles[2], "bulb_game_scene")	-- pass in the tile for forest nav
 	if (not bulbGameSettings.playerData.diedInForest) then
 		bulbGameSettings.playerData:keepTempItems()
 		--keepTempItems already calls gameSettings:saveGame(), so we don't have to
@@ -101,7 +103,8 @@ function BulbGame:selectTile(event)
 			params =
 			{
 				previousMapName = "bulb_game_scene",
-				mapFileName = "init"
+				mapFileName = "generated_map1",
+				navLoc = {x = event.i, y = event.j}
 			}
 		}
 		self.composer.gotoScene( navigation, options )
