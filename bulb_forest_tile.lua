@@ -34,6 +34,7 @@ function BulbForestTile:create(group, tileInfo, customData)
 
 	if (customData) then
 		self.nav = customData.nav
+		self.metaLocation = customData.metaLocation
 	end
 
 	if (tileInfo) then

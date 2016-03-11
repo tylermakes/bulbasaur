@@ -3,7 +3,7 @@ require("class")
 BulbMapGenerator = class(function(c)
 end)
 
-function BulbMapGenerator:generateMap( rows, columns, tileSize, previousLocation )
+function BulbMapGenerator:generateMap( rows, columns, tileSize, previousLocation, currentLocation )
 	print("generated a map")
 	local map = {}
 	local forestTile = {}
@@ -18,12 +18,12 @@ function BulbMapGenerator:generateMap( rows, columns, tileSize, previousLocation
 		end
 	end
 
-	self:buildRandomNavs(map, rows, columns, previousLocation)
+	self:buildRandomNavs(map, rows, columns, previousLocation, currentLocation)
 
 	return map
 end
 
-function BulbMapGenerator:buildRandomNavs(map, rows, columns, previousLocation)
+function BulbMapGenerator:buildRandomNavs(map, rows, columns, previousLocation, currentLocation)
 	local hasTop = previousLocation.y == rows or math.floor(math.random()*4) == 1
 	local hasBottom = previousLocation.y == 1 or math.floor(math.random()*4) == 1
 	local hasLeft = previousLocation.x == columns or math.floor(math.random()*4) == 1
@@ -31,16 +31,24 @@ function BulbMapGenerator:buildRandomNavs(map, rows, columns, previousLocation)
 
 	--	map.layers[1][math.floor(columns/2)][rows] = {tileName = "nav", customData = {nav = "bulb_game_scene"}}
 	if (hasTop) then
-		map.layers[1][math.floor(columns/2)][1] = {tileName = "nav", customData = {nav = previousLocation.name}}
+		map.layers[1][math.floor(columns/2)][1] =
+		{tileName = "nav", customData =
+			{nav = previousLocation.name, metaLocation = {x = currentLocation.x, y = currentLocation.y + 1}}}
 	end
 	if (hasBottom) then
-		map.layers[1][math.floor(columns/2)][rows] = {tileName = "nav", customData = {nav = previousLocation.name}}
+		map.layers[1][math.floor(columns/2)][rows] =
+		{tileName = "nav", customData =
+			{nav = previousLocation.name, metaLocation = {x = currentLocation.x, y = currentLocation.y - 1}}}
 	end
 	if (hasLeft) then
-		map.layers[1][1][math.floor(rows/2)] = {tileName = "nav", customData = {nav = previousLocation.name}}
+		map.layers[1][1][math.floor(rows/2)] =
+		{tileName = "nav", customData =
+			{nav = previousLocation.name, metaLocation = {x = currentLocation.x - 1, y = currentLocation.y}}}
 	end
 	if (hasRight) then
-		map.layers[1][columns][math.floor(rows/2)] = {tileName = "nav", customData = {nav = previousLocation.name}}
+		map.layers[1][columns][math.floor(rows/2)] =
+		{tileName = "nav", customData =
+			{nav = previousLocation.name, metaLocation = {x = currentLocation.x + 1, y = currentLocation.y}}}
 	end
 
 end

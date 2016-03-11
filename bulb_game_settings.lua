@@ -8,7 +8,7 @@ BulbGameSettings = class(function(c)
 	c.mapNames = {}
 	c.generatedMapData = {}
 	-- generated map {filename="generated + mapNum", mapNum=1, location={1,1}}
-	c.currentMapNum = 0
+	c.currentMapNum = 1
 	c.playerData = BulbPlayerData()
 	c.inGame = false
 
@@ -58,8 +58,8 @@ BulbGameSettings = class(function(c)
 	
 	c.talking = talking
 
-	c.forestStartName = "init";
-	c.forestCurrentMap = "init";
+	-- c.forestStartName = "init";
+	-- c.forestCurrentMap = "init";
 	c.gardenFileName = "garden_data";
 end)
 
@@ -156,20 +156,36 @@ end
 function BulbGameSettings:resetGeneratedMap(forestNav, location)
 	self.currentMapNum = 1
 	self.generatedMapData = {}
-	self:generateMap(1, 1, 1, {x = forestNav.i, y = forestNav.j, name = location})
+	self:generateMap(1, 1, 1, {x = forestNav.i, y = forestNav.j, name = location}, {x=1, y=1})
 end
 
-function BulbGameSettings:generateMap(currentMapNum, x, y, previousLocation)
-	local map = BulbMapGenerator:generateMap(self.rows, self.columns, self.size, previousLocation)
+function BulbGameSettings:getFileNameByMetaLocation(metaLocation)
+	local savedMap = self.generatedMapData[metaLocation.x..","..metaLocation.y]
+	local filename = self:mapNumToName(math.floor(math.random()*1000))
+	if (savedMap) then
+		filename = savedMap.filename
+	end
+	return filename
+	-- TODO: this is a work in progress and needs to be fixed
+	-- we're trying to generate new levels as you venture further
+	-- into the forest.
+end
+
+function BulbGameSettings:mapNumToName(num)
+	return "generated_map"..num
+end
+
+function BulbGameSettings:generateMap(currentMapNum, x, y, previousLocation, currentLocation)
+	local map = BulbMapGenerator:generateMap(self.rows, self.columns, self.size, previousLocation, currentLocation)
 	local mapData = {
-						filename="generated"..currentMapNum,
+						filename=self:mapNumToName(currentMapNum),
 						mapNum=currentMapNum,
 						location={x, y}
 					}
 	map.mapName = mapData.filename
 	self.generatedMapData[x..","..y] = mapData
 	bulbGameSettings:saveGame()
-	savingContainer:saveFile(map, "generated_map"..currentMapNum)
+	savingContainer:saveFile(map, self:mapNumToName(currentMapNum))
 end
 
 function BulbGameSettings:getItemByID(id)

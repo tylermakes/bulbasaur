@@ -103,7 +103,7 @@ function BulbGame:selectTile(event)
 			params =
 			{
 				previousMapName = "bulb_game_scene",
-				mapFileName = "generated_map1",
+				mapFileName = bulbGameSettings:mapNumToName(1),
 				navLoc = {x = event.i, y = event.j}
 			}
 		}

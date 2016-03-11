@@ -1,3 +1,9 @@
+- MORE MAP STUFF:
+	in order to have the forest generated as we want, we need to navigate
+	by metaLocation. If the map is already saved, use the saved one. If the
+	map metaLocation is not already saved, generate a new one and save it.
+
+
 -build procedurally generated forest
 -add dialogue and "level" progression
 -game menus

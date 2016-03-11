@@ -77,7 +77,9 @@ function BulbForestMap:loadMapFromData( data, previousScene )
 		self.playerStartLocation = self.navBackLocation
 		self.navBackLocation = nil
 	elseif (not (self.playerStartLocation and self.playerStartLocation.i and self.playerStartLocation.j)) then
-		self.playerStartLocation = {i=1, j=1}
+		self.playerStartLocation = 
+			{i = bulbGameSettings.playerData.tileLocation.x, j = bulbGameSettings.playerData.tileLocation.y }
+		--self.playerStartLocation = {i=1, j=1}
 	end
 end
 
@@ -113,7 +115,8 @@ function BulbForestMap:triggerLocation( location )
 			name = "triggerTile",
 			subtype = "navigate",
 			nav = tile.nav,
-			location = {i=location.i, j=location.j}
+			location = {i=location.i, j=location.j},
+			metaLocation = {tile.metaLocation}
 		}
 	elseif (tile.tileInfo.seed) then
 		tileEvent = {

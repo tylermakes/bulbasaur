@@ -48,7 +48,7 @@ function BulbHome:entered(group)
 	end
 
 	bulbGameSettings.playerData.currentLocation = "home"
-	bulbGameSettings:resetGeneratedMap()
+--	bulbGameSettings:resetGeneratedMap() -- TODO: fix this!
 	bulbGameSettings:saveGame()
 end
 

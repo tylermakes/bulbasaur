@@ -18,7 +18,7 @@ savingContainer = SavingContainer(bulbGameSettings)	--param must have :getGameDa
 globalAStar = BulbAStar()
 savingContainer:load()
 
-globalBuildMode = true
+globalBuildMode = false
 
 local composer = require( "composer" )
 if (globalBuildMode) then

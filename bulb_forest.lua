@@ -41,9 +41,10 @@ function BulbForest:create(group)
 			self.map:loadMapFromData(loadedData, self.previousMapName)
 		end
 	else
-		local loadedData = savingContainer:loadFile(bulbGameSettings.forestCurrentMap)
+		local mapName = bulbGameSettings:mapNumToName(bulbGameSettings.currentMapNum)
+		local loadedData = savingContainer:loadFile(mapName)
 		if (loadedData.failure) then
-			print("FAILED TO LOAD DATA FROM:", bulbGameSettings.forestCurrentMap)	-- probably filename doesn't exist
+			print("FAILED TO LOAD DATA FROM:", mapName)	-- probably filename doesn't exist
 		else
 			self.map:loadMapFromData(loadedData, self.previousMapName)
 		end
@@ -115,6 +116,7 @@ function BulbForest:update()
 	end
 	if (self.player.playerLocation.i ~= self.lastPlayerLocation.i or
 		self.player.playerLocation.j ~= self.lastPlayerLocation.j) then
+		bulbGameSettings.playerData:updateLocation({x=self.player.playerLocation.i, y=self.player.playerLocation.j})
 		self.lastPlayerLocation = self.player.playerLocation
 		self.map:triggerLocation(self.player.playerLocation)
 	end
@@ -172,7 +174,8 @@ function BulbForest:navigate(event)
 			params =
 			{
 				previousMapName = self.buildingMapName,
-				mapFileName = event.nav
+				mapFileName = bulbGameSettings:getFileNameByMetaLocation(metaLocation),
+				navLoc = {x = event.location.i, y = event.location.j}
 			}
 		}
 		self.composer.gotoScene( "bulb_forest_scene", options )
