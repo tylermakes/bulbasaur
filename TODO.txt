@@ -3,6 +3,7 @@
 	by metaLocation. If the map is already saved, use the saved one. If the
 	map metaLocation is not already saved, generate a new one and save it.
 
+-cache maps so we don't always load from file?
 
 -build procedurally generated forest
 -add dialogue and "level" progression

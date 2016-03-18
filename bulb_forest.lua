@@ -5,7 +5,8 @@ require("bulb_player")
 require("bulb_enemy")
 
 BulbForest = class(function(c, width, height, composer,
-							buildingMapName, previousMapName, navLoc)
+							buildingMapName, previousMapName,
+							navLoc, metaLoc)
 	c.width = width
 	c.height = height
 	c.map = nil
@@ -18,6 +19,7 @@ BulbForest = class(function(c, width, height, composer,
 	c.composer = composer
 	c.enemies = {}
 	c.navLoc = navLoc
+	c.metaLoc = metaLoc
 end)
 
 function BulbForest:create(group)
@@ -41,10 +43,10 @@ function BulbForest:create(group)
 			self.map:loadMapFromData(loadedData, self.previousMapName)
 		end
 	else
-		local mapName = bulbGameSettings:mapNumToName(bulbGameSettings.currentMapNum)
-		local loadedData = savingContainer:loadFile(mapName)
+		local loadedData = bulbGameSettings:getMapDataAndSaveIfTemp(self.metaLoc.x, self.metaLoc.y)
 		if (loadedData.failure) then
-			print("FAILED TO LOAD DATA FROM:", mapName)	-- probably filename doesn't exist
+			print("FAILED TO GET MAP DATA")	-- probably filename doesn't exist
+			return;
 		else
 			self.map:loadMapFromData(loadedData, self.previousMapName)
 		end
@@ -175,7 +177,8 @@ function BulbForest:navigate(event)
 			{
 				previousMapName = self.buildingMapName,
 				mapFileName = bulbGameSettings:getFileNameByMetaLocation(metaLocation),
-				navLoc = {x = event.location.i, y = event.location.j}
+				navLoc = {x = event.location.i, y = event.location.j},
+				metaLoc = {event.metaLocation}
 			}
 		}
 		self.composer.gotoScene( "bulb_forest_scene", options )

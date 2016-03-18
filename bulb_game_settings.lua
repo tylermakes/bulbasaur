@@ -7,10 +7,13 @@ require("bulb_map_generator")
 BulbGameSettings = class(function(c)
 	c.mapNames = {}
 	c.generatedMapData = {}
+	c.temporaryMaps = {}
 	-- generated map {filename="generated + mapNum", mapNum=1, location={1,1}}
 	c.currentMapNum = 1
 	c.playerData = BulbPlayerData()
 	c.inGame = false
+
+	c.TOTAL_SAVED_MAPS = 10
 
 	c.rows = 15
 	c.size = display.contentHeight/c.rows
@@ -130,8 +133,20 @@ function BulbGameSettings:goToCurrentLocation( composer )
 		composer.gotoScene( "bulb_game_scene" )
 	elseif (bulbGameSettings.playerData.currentLocation == "home") then
 		composer.gotoScene( "bulb_home_scene" )
-	elseif (bulbGameSettings.playerData.currentLocation == "forest") then
-		composer.gotoScene( "bulb_forest_scene" )
+	-- elseif (bulbGameSettings.playerData.currentLocation == "forest") then
+		-- local options =
+		-- {
+		-- 	effect = "fade",
+		-- 	time = 500,
+		-- 	params =
+		-- 	{
+		-- 		previousMapName = self.buildingMapName,
+		-- 		mapFileName = bulbGameSettings:getFileNameByMetaLocation(metaLocation),
+		-- 		navLoc = {x = event.location.i, y = event.location.j},
+		-- 		metaLoc = {event.metaLocation}
+		-- 	}
+		-- }
+		-- composer.gotoScene( "bulb_forest_scene" )
 	else
 		composer.gotoScene( "bulb_game_scene" )
 	end
@@ -154,8 +169,9 @@ function BulbGameSettings:addMapName(name)
 end
 
 function BulbGameSettings:resetGeneratedMap(forestNav, location)
-	self.currentMapNum = 1
+	self.currentMapNum = 0
 	self.generatedMapData = {}
+	self.temporaryMaps = {}
 	self:generateMap(1, 1, 1, {x = forestNav.i, y = forestNav.j, name = location}, {x=1, y=1})
 end
 
@@ -177,15 +193,65 @@ end
 
 function BulbGameSettings:generateMap(currentMapNum, x, y, previousLocation, currentLocation)
 	local map = BulbMapGenerator:generateMap(self.rows, self.columns, self.size, previousLocation, currentLocation)
+	-- local mapData = {
+						-- filename=self:mapNumToName(currentMapNum),
+						-- mapNum=currentMapNum,
+					-- 	location={x, y}
+					-- }
+	-- map.mapName = mapData.filename
+	self.temporaryMaps[x..","..y] = map
+end
+
+function BulbGameSettings:deleteOldMapAndGetCurrentMapNum()
+	if (self.currentMapNum < self.TOTAL_SAVED_MAPS) then
+		self.currentMapNum = self.currentMapNum + 1
+	else
+		self.currentMapNum = 1
+	end
+
+	local delete = nil
+	for k, v in pairs(self.generatedMapData) do
+		if (v.mapNum == self.currentMapNum) then
+			delete = k
+		end
+	end
+	if (delete) then
+		self.generatedMapData[delete] = nil
+		print("deleting:"..delete.." mapLen:"..#self.generatedMapData)
+	end
+	return self.currentMapNum
+end
+
+function BulbGameSettings:saveMap( x, y )
+	local mapNum = self:deleteOldMapAndGetCurrentMapNum()
 	local mapData = {
-						filename=self:mapNumToName(currentMapNum),
-						mapNum=currentMapNum,
+						filename=self:mapNumToName(mapNum),
+						mapNum=mapNum,
 						location={x, y}
 					}
-	map.mapName = mapData.filename
+	self.temporaryMaps[x..","..y].mapName = mapData.filename
 	self.generatedMapData[x..","..y] = mapData
 	bulbGameSettings:saveGame()
-	savingContainer:saveFile(map, self:mapNumToName(currentMapNum))
+	savingContainer:saveFile(self.temporaryMaps[x..","..y], mapData.filename)
+end
+
+function BulbGameSettings:getMapDataAndSaveIfTemp(x, y)
+	local returnData = {failure = "Couldn't find map."}
+	local mapData = self.temporaryMaps[x..","..y]
+	if (mapData) then
+		self:saveMap(x, y)
+		returnData = self.temporaryMaps[x..","..y]
+	else
+		local mapFile = self.generatedMapData[x..","..y]
+		local loadedData = savingContainer:loadFile(mapFile.filename)
+		if (loadedData.failure) then
+			print("FAILED TO LOAD DATA FROM:", mapName)	-- probably filename doesn't exist
+		else
+			returnData = loadedData
+		end
+	end
+
+	return returnData
 end
 
 function BulbGameSettings:getItemByID(id)

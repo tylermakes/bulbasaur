@@ -11,6 +11,17 @@ local scene = composer.newScene()
 
 local game
 
+-- HELPERS
+
+function scene:makeGame(event, group)
+	game = BulbForest(display.contentWidth, display.contentHeight,
+		composer, event.params.mapFileName, event.params.previousMapName,
+		event.params.navLoc, event.params.metaLoc)
+	game:create(group)
+end
+
+-- /HELPERS
+
 -- Called when the scene's view does not exist:
 function scene:create( event )
 	local group = self.view
@@ -18,9 +29,7 @@ function scene:create( event )
 		event.params = {}
 	end
 	if (not game) then
-		game = BulbForest(display.contentWidth, display.contentHeight,
-			composer, event.params.mapFileName, event.params.previousMapName, event.params.navLoc)
-		game:create(group)
+		self:makeGame(event, group)
 	end
 end
 
@@ -31,9 +40,7 @@ function scene:show( event )
 		event.params = {}
 	end
 	if (not game) then
-		game = BulbForest(display.contentWidth, display.contentHeight,
-			composer, event.params.mapFileName, event.params.previousMapName)
-		game:create(group)
+		self:makeGame(event, group)
 	end
 	if (game) then
 		game:entered(group)
