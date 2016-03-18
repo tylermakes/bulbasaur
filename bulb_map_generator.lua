@@ -27,6 +27,12 @@ function BulbMapGenerator:generateMap( rows, columns, tileSize, previousLocation
 	return map
 end
 
+function BulbMapGenerator:buildNavPoints(map, rows, columns, currentLocation)
+	
+
+end
+
+-- build random navigation points, but always have one leading back to where you came from
 function BulbMapGenerator:buildRandomNavs(map, rows, columns, previousLocation, currentLocation)
 	local fromBottom = previousLocation.y == rows
 	local fromTop = previousLocation.y == 1
@@ -37,7 +43,6 @@ function BulbMapGenerator:buildRandomNavs(map, rows, columns, previousLocation, 
 	local hasBottom = previousLocation.y == 1 or math.floor(math.random()*4) == 1
 	local hasLeft = previousLocation.x == columns or math.floor(math.random()*4) == 1
 	local hasRight = previousLocation.x == 1 or math.floor(math.random()*4) == 1
-
 
 	function prevLocationOrNil(from)
 		if from then 
@@ -72,7 +77,6 @@ function BulbMapGenerator:buildRandomNavs(map, rows, columns, previousLocation, 
 			{nav = prevLocationOrNil(fromLeft),
 			metaLocation = {x = currentLocation.x + 1, y = currentLocation.y}}}
 	end
-
 end
 
 function BulbMapGenerator:randomTile()

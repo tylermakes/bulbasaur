@@ -13,7 +13,7 @@ BulbGameSettings = class(function(c)
 	c.playerData = BulbPlayerData()
 	c.inGame = false
 
-	c.TOTAL_SAVED_MAPS = 10
+	c.TOTAL_SAVED_MAPS = 4
 
 	c.rows = 15
 	c.size = display.contentHeight/c.rows
@@ -169,6 +169,7 @@ function BulbGameSettings:addMapName(name)
 end
 
 function BulbGameSettings:resetGeneratedMap(forestNav, location)
+	print("reset?")
 	self.currentMapNum = 0
 	self.generatedMapData = {}
 	self.temporaryMaps = {}
@@ -191,14 +192,14 @@ function BulbGameSettings:generateMap(currentMapNum, x, y, previousLocation)
 	self.temporaryMaps[x..","..y] = map
 end
 
-function BulbGameSettings:generateMapIfNeedBe( x, y, tileX, tileY, mapName )
-	if (self.temporaryMaps[x..","..y] or self.generatedMapData[x..","..y]) then
-		return
-	end
+-- function BulbGameSettings:generateMapIfNeedBe( x, y, tileX, tileY, mapName )
+-- 	if (self.temporaryMaps[x..","..y] or self.generatedMapData[x..","..y]) then
+-- 		return
+-- 	end
 
-	self:generateMap(self.currentMapNum, x, y,
-		{x=tileX, y=tileY, name=mapName})
-end
+-- 	self:generateMap(self.currentMapNum, x, y,
+-- 		{x=tileX, y=tileY, name=mapName})
+-- end
 
 function BulbGameSettings:deleteOldMapAndGetCurrentMapNum()
 	if (self.currentMapNum < self.TOTAL_SAVED_MAPS) then
@@ -206,6 +207,7 @@ function BulbGameSettings:deleteOldMapAndGetCurrentMapNum()
 	else
 		self.currentMapNum = 1
 	end
+	print("current map num:"..self.currentMapNum)
 
 	local delete = nil
 	for k, v in pairs(self.generatedMapData) do
@@ -215,12 +217,15 @@ function BulbGameSettings:deleteOldMapAndGetCurrentMapNum()
 	end
 	if (delete) then
 		self.generatedMapData[delete] = nil
-		print("deleting:"..delete.." mapLen:"..#self.generatedMapData)
+		self.temporaryMaps[delete] = nil
+		print("deleting:"..delete)
 	end
 	return self.currentMapNum
 end
 
-function BulbGameSettings:saveMap( x, y )
+function BulbGameSettings:generateAndSaveMap( x, y, tileX, tileY, mapName )
+	self:generateMap(self.currentMapNum, x, y,
+			{x=tileX, y=tileY, name=mapName})
 	local mapNum = self:deleteOldMapAndGetCurrentMapNum()
 	local mapData = {
 						filename=self:mapNumToName(mapNum),
@@ -233,21 +238,63 @@ function BulbGameSettings:saveMap( x, y )
 	savingContainer:saveFile(self.temporaryMaps[x..","..y], mapData.filename)
 end
 
-function BulbGameSettings:getMapDataAndSaveIfTemp(x, y)
+function BulbGameSettings:clearTemporaryMaps( )
+	self.temporaryMaps = {}
+end
+
+function BulbGameSettings:getMapDataAndSaveIfTemp(x, y, tileX, tileY, mapName)
+	print("===entering:"..x..","..y)
 	local returnData = {failure = "Couldn't find map."}
 	local mapData = self.temporaryMaps[x..","..y]
+	local mapFile = self.generatedMapData[x..","..y]
+	local mapStatus = "mapStatus:"..x..","..y..":"
+	print(mapData)
 	if (mapData) then
-		self:saveMap(x, y)
+		mapStatus = mapStatus.." was temp"
 		returnData = self.temporaryMaps[x..","..y]
-	else
-		local mapFile = self.generatedMapData[x..","..y]
+	elseif (mapFile) then
+		mapStatus = mapStatus.." was gen"
 		local loadedData = savingContainer:loadFile(mapFile.filename)
 		if (loadedData.failure) then
 			print("FAILED TO LOAD DATA FROM:", mapName)	-- probably filename doesn't exist
 		else
+			self.temporaryMaps[x..","..y] = loadedData
 			returnData = loadedData
 		end
+	else
+		self:generateAndSaveMap(x, y, tileX, tileY, mapName)
+		returnData = self.temporaryMaps[x..","..y]
 	end
+
+	-- TODO: REMOVE
+	-- PRINT MAP STATUS
+	print(mapStatus)
+	local totalTemps = 0
+	local keysLine = ""
+	for k,v in pairs(self.temporaryMaps) do
+		totalTemps = totalTemps + 1
+		keysLine = keysLine.."  "..k
+		if (totalTemps % 5 == 0) then
+			print(keysLine)
+			keysLine = ""
+		end
+	end
+	print(keysLine)
+	print("\ttemps:"..totalTemps)
+
+	local totalGens = 0
+	keysLine = ""
+	for k,v in pairs(self.generatedMapData) do
+		totalGens = totalGens + 1
+		keysLine = keysLine.."  "..k
+		if (totalGens % 5 == 0) then
+			print(keysLine)
+			keysLine = ""
+		end
+	end
+	print(keysLine)
+	print("\tgen:"..totalGens)
+	-- //PRINT MAP STATUS
 
 	return returnData
 end

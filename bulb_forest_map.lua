@@ -60,13 +60,14 @@ function BulbForestMap:loadMapFromData( data, previousScene, previousMetaLocatio
 		for j=1, self.rows do
 			local newTile = bulbBuilderSettings:getItemByName(data.layers[1][i][j].tileName)
 			local customData = data.layers[1][i][j].customData
-			if (newTile.tileName == "nav" and 
-				(customData.nav == previousScene or
-					(customData.metaLocation.x == previousMetaLocation.x and
-						customData.metaLocation.y == previousMetaLocation.y
-					)
-				)) then
-				self.navBackLocation = {i=i, j=j}
+			if (newTile.tileName == "nav") then
+				-- TODO: this is dumb and complicated and should be simplified
+				if (previousScene ~= nil and customData.nav == previousScene) or
+						(customData.metaLocation.x == previousMetaLocation.x and
+							customData.metaLocation.y == previousMetaLocation.y)
+				then
+					self.navBackLocation = {i=i, j=j}
+				end
 			end
 			if (newTile.tileName == "player") then
 				self.playerStartLocation = {i=i, j=j}

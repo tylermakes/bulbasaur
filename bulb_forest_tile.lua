@@ -39,7 +39,7 @@ function BulbForestTile:create(group, tileInfo, customData)
 
 		if (self.metaLocation) then
 			local txt = display.newText({x=self.x + 30, y=self.y + 30, width=self.size, height=self.size,
-				text=self.metaLocation.x..","..self.metaLocation.y})
+				text=self.metaLocation.x..","..self.metaLocation.y, fontSize=24})
 			group:insert(txt)
 		end
 	end

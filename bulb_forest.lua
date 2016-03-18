@@ -44,9 +44,8 @@ function BulbForest:create(group)
 			self.map:loadMapFromData(loadedData, self.previousMapName, self.prevMetaLoc)
 		end
 	else
-
-		print("current data:", self.buildingMapName, self.previousMapName, " m:", self.metaLoc, self.metaLoc)
-		local loadedData = bulbGameSettings:getMapDataAndSaveIfTemp(self.metaLoc.x, self.metaLoc.y)
+		local loadedData = bulbGameSettings:getMapDataAndSaveIfTemp(self.metaLoc.x, self.metaLoc.y,
+														self.navLoc.x, self.navLoc.y, self.previousMapName)
 		if (loadedData.failure) then
 			print("FAILED TO GET MAP DATA")	-- probably filename doesn't exist
 			return;
@@ -185,9 +184,9 @@ function BulbForest:navigate(event)
 			}
 		}
 		-- TODO: should we generate right before exiting?
-		bulbGameSettings:generateMapIfNeedBe(options.params.metaLoc.x, options.params.metaLoc.y,
-				options.params.navLoc.x, options.params.navLoc.y,
-				self.buildingMapName)
+		-- bulbGameSettings:generateMapIfNeedBe(options.params.metaLoc.x, options.params.metaLoc.y,
+		-- 		options.params.navLoc.x, options.params.navLoc.y,
+		-- 		self.buildingMapName)
 		self.composer.gotoScene( "bulb_forest_scene", options )
 	end
 end
