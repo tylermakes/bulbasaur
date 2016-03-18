@@ -104,7 +104,8 @@ function BulbGame:selectTile(event)
 			{
 				previousMapName = "bulb_game_scene",
 				navLoc = {x = event.i, y = event.j},
-				metaLoc = {x = 1, y = 1}
+				metaLoc = {x = 1, y = 1},
+				prevMetaLoc = {x = 1, y = 0}
 			}
 		}
 		self.composer.gotoScene( navigation, options )

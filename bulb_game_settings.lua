@@ -141,7 +141,7 @@ function BulbGameSettings:goToCurrentLocation( composer )
 		-- 	params =
 		-- 	{
 		-- 		previousMapName = self.buildingMapName,
-		-- 		mapFileName = bulbGameSettings:getFileNameByMetaLocation(metaLocation),
+		-- 		//NOLONGERWORKSmapFileName = bulbGameSettings:getFileNameByMetaLocation(metaLocation),
 		-- 		navLoc = {x = event.location.i, y = event.location.j},
 		-- 		metaLoc = {event.metaLocation}
 		-- 	}
@@ -172,27 +172,16 @@ function BulbGameSettings:resetGeneratedMap(forestNav, location)
 	self.currentMapNum = 0
 	self.generatedMapData = {}
 	self.temporaryMaps = {}
-	self:generateMap(1, 1, 1, {x = forestNav.i, y = forestNav.j, name = location}, {x=1, y=1})
-end
-
-function BulbGameSettings:getFileNameByMetaLocation(metaLocation)
-	local savedMap = self.generatedMapData[metaLocation.x..","..metaLocation.y]
-	local filename = self:mapNumToName(math.floor(math.random()*1000))
-	if (savedMap) then
-		filename = savedMap.filename
-	end
-	return filename
-	-- TODO: this is a work in progress and needs to be fixed
-	-- we're trying to generate new levels as you venture further
-	-- into the forest.
+	self:generateMap(1, 1, 1, {x = forestNav.i, y = forestNav.j, name = location})
 end
 
 function BulbGameSettings:mapNumToName(num)
 	return "generated_map"..num
 end
 
-function BulbGameSettings:generateMap(currentMapNum, x, y, previousLocation, currentLocation)
-	local map = BulbMapGenerator:generateMap(self.rows, self.columns, self.size, previousLocation, currentLocation)
+function BulbGameSettings:generateMap(currentMapNum, x, y, previousLocation)
+	local map = BulbMapGenerator:generateMap(self.rows, self.columns,
+		self.size, previousLocation, {x=x, y=y})
 	-- local mapData = {
 						-- filename=self:mapNumToName(currentMapNum),
 						-- mapNum=currentMapNum,
@@ -200,6 +189,15 @@ function BulbGameSettings:generateMap(currentMapNum, x, y, previousLocation, cur
 					-- }
 	-- map.mapName = mapData.filename
 	self.temporaryMaps[x..","..y] = map
+end
+
+function BulbGameSettings:generateMapIfNeedBe( x, y, tileX, tileY, mapName )
+	if (self.temporaryMaps[x..","..y] or self.generatedMapData[x..","..y]) then
+		return
+	end
+
+	self:generateMap(self.currentMapNum, x, y,
+		{x=tileX, y=tileY, name=mapName})
 end
 
 function BulbGameSettings:deleteOldMapAndGetCurrentMapNum()

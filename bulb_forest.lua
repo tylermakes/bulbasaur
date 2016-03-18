@@ -6,7 +6,7 @@ require("bulb_enemy")
 
 BulbForest = class(function(c, width, height, composer,
 							buildingMapName, previousMapName,
-							navLoc, metaLoc)
+							navLoc, metaLoc, prevMetaLoc)
 	c.width = width
 	c.height = height
 	c.map = nil
@@ -20,6 +20,7 @@ BulbForest = class(function(c, width, height, composer,
 	c.enemies = {}
 	c.navLoc = navLoc
 	c.metaLoc = metaLoc
+	c.prevMetaLoc = prevMetaLoc
 end)
 
 function BulbForest:create(group)
@@ -40,15 +41,17 @@ function BulbForest:create(group)
 			print("HAVE YOU SAVED YOUR INIT FILE?")
 			return;
 		else
-			self.map:loadMapFromData(loadedData, self.previousMapName)
+			self.map:loadMapFromData(loadedData, self.previousMapName, self.prevMetaLoc)
 		end
 	else
+
+		print("current data:", self.buildingMapName, self.previousMapName, " m:", self.metaLoc, self.metaLoc)
 		local loadedData = bulbGameSettings:getMapDataAndSaveIfTemp(self.metaLoc.x, self.metaLoc.y)
 		if (loadedData.failure) then
 			print("FAILED TO GET MAP DATA")	-- probably filename doesn't exist
 			return;
 		else
-			self.map:loadMapFromData(loadedData, self.previousMapName)
+			self.map:loadMapFromData(loadedData, self.previousMapName, self.prevMetaLoc)
 		end
 	end
 
@@ -160,7 +163,7 @@ function BulbForest:gatherSeeds(event)
 end
 
 function BulbForest:navigate(event)
-	if ( string.find(event.nav, '_scene')) then
+	if ( event.nav and string.find(event.nav, '_scene')) then
 		if (globalBuildMode and
 			(event.nav == "bulb_home_scene" or
 				event.nav == "bulb_game_scene")) then
@@ -176,11 +179,15 @@ function BulbForest:navigate(event)
 			params =
 			{
 				previousMapName = self.buildingMapName,
-				mapFileName = bulbGameSettings:getFileNameByMetaLocation(metaLocation),
 				navLoc = {x = event.location.i, y = event.location.j},
-				metaLoc = {event.metaLocation}
+				metaLoc = event.metaLocation,
+				prevMetaLoc = self.metaLoc
 			}
 		}
+		-- TODO: should we generate right before exiting?
+		bulbGameSettings:generateMapIfNeedBe(options.params.metaLoc.x, options.params.metaLoc.y,
+				options.params.navLoc.x, options.params.navLoc.y,
+				self.buildingMapName)
 		self.composer.gotoScene( "bulb_forest_scene", options )
 	end
 end

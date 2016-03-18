@@ -53,14 +53,19 @@ function BulbForestMap:update()
 	-- end
 end
 
-function BulbForestMap:loadMapFromData( data, previousScene )
+function BulbForestMap:loadMapFromData( data, previousScene, previousMetaLocation )
 	self.mapName = data.mapName
 	self.fileName = data.fileName
 	for i=1, self.columns do
 		for j=1, self.rows do
 			local newTile = bulbBuilderSettings:getItemByName(data.layers[1][i][j].tileName)
 			local customData = data.layers[1][i][j].customData
-			if (newTile.tileName == "nav" and customData.nav == previousScene) then
+			if (newTile.tileName == "nav" and 
+				(customData.nav == previousScene or
+					(customData.metaLocation.x == previousMetaLocation.x and
+						customData.metaLocation.y == previousMetaLocation.y
+					)
+				)) then
 				self.navBackLocation = {i=i, j=j}
 			end
 			if (newTile.tileName == "player") then
@@ -110,13 +115,13 @@ end
 function BulbForestMap:triggerLocation( location )
 	local tile = self:getTile(location)
 	local tileEvent = nil
-	if (tile.nav) then
+	if (tile.nav or tile.metaLocation) then
 		tileEvent = {
 			name = "triggerTile",
 			subtype = "navigate",
 			nav = tile.nav,
 			location = {i=location.i, j=location.j},
-			metaLocation = {tile.metaLocation}
+			metaLocation = tile.metaLocation
 		}
 	elseif (tile.tileInfo.seed) then
 		tileEvent = {

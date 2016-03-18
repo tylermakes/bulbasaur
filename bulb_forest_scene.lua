@@ -16,7 +16,7 @@ local game
 function scene:makeGame(event, group)
 	game = BulbForest(display.contentWidth, display.contentHeight,
 		composer, event.params.mapFileName, event.params.previousMapName,
-		event.params.navLoc, event.params.metaLoc)
+		event.params.navLoc, event.params.metaLoc, event.params.prevMetaLoc)
 	game:create(group)
 end
 

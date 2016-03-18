@@ -10,6 +10,7 @@ BulbForestTile = class(function(c, i, j, x, y, size)
 	c.tileView = nil
 	c.tileInfo = nil
 	c.nav = nil
+	c.metaLocation = nil
 end)
 
 function BulbForestTile:create(group, tileInfo, customData)
@@ -35,6 +36,12 @@ function BulbForestTile:create(group, tileInfo, customData)
 	if (customData) then
 		self.nav = customData.nav
 		self.metaLocation = customData.metaLocation
+
+		if (self.metaLocation) then
+			local txt = display.newText({x=self.x + 30, y=self.y + 30, width=self.size, height=self.size,
+				text=self.metaLocation.x..","..self.metaLocation.y})
+			group:insert(txt)
+		end
 	end
 
 	if (tileInfo) then
