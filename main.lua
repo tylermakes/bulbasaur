@@ -7,6 +7,7 @@ require("bulb_game_settings")
 require("bulb_builder_settings")
 require("saving_container")
 require("bulb_astar")
+require("tm_utilities")
 
 -- hide the status bar
 display.setStatusBar( display.HiddenStatusBar )

@@ -13,7 +13,7 @@ BulbGameSettings = class(function(c)
 	c.playerData = BulbPlayerData()
 	c.inGame = false
 
-	c.TOTAL_SAVED_MAPS = 4
+	c.TOTAL_SAVED_MAPS = 8
 
 	c.rows = 15
 	c.size = display.contentHeight/c.rows
@@ -192,6 +192,22 @@ function BulbGameSettings:generateMap(currentMapNum, x, y, previousLocation)
 	self.temporaryMaps[x..","..y] = map
 end
 
+function BulbGameSettings:hasNavTo(map, x, y)
+	for i=1, #map.layers[1] do
+		for j=1, #map.layers[1][i] do
+			local tile = map.layers[1][i][j]
+			local customData = tile.customData
+			if (tile.tileName == "nav") then
+				if (customData.metaLocation.x == x and
+					customData.metaLocation.y == y) then
+					return true -- HAS NAV TO OTHER LOCATION
+				end
+			end
+		end
+	end
+	return false -- DOES NOT HAVE NAV TO OTHER LOCATION
+end
+
 -- function BulbGameSettings:generateMapIfNeedBe( x, y, tileX, tileY, mapName )
 -- 	if (self.temporaryMaps[x..","..y] or self.generatedMapData[x..","..y]) then
 -- 		return
@@ -236,6 +252,10 @@ function BulbGameSettings:generateAndSaveMap( x, y, tileX, tileY, mapName )
 	self.generatedMapData[x..","..y] = mapData
 	bulbGameSettings:saveGame()
 	savingContainer:saveFile(self.temporaryMaps[x..","..y], mapData.filename)
+end
+
+function BulbGameSettings:getTemporaryMap(x, y)
+	return self.temporaryMaps[x..","..y]
 end
 
 function BulbGameSettings:clearTemporaryMaps( )
