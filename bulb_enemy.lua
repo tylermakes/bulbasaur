@@ -96,46 +96,46 @@ end
 -- 	self.enemyView.y = newLocation.y
 -- end
 
-function BulbEnemy:setTargetLocation(event)
-	if (self.location.i == event.x or self.location.j == event.y) then
-		self.targetLocation = {i=event.x, j=event.y}
-	end
-end
+-- function BulbEnemy:setTargetLocation(event)
+-- 	if (self.location.i == event.x or self.location.j == event.y) then
+-- 		self.targetLocation = {i=event.x, j=event.y}
+-- 	end
+-- end
 
-function BulbEnemy:addItem(type, num)
-	self.itemBag[type].inventory = self.itemBag[type].inventory + num
-	itemUsedEvent = {
-		name ="itemUpdated",
-		status = "added",
-		type = type,
-		newValue = self.itemBag[type].inventory
-	}
-	self:dispatchEvent(itemUsedEvent)
-end
+-- function BulbEnemy:addItem(type, num)
+-- 	self.itemBag[type].inventory = self.itemBag[type].inventory + num
+-- 	itemUsedEvent = {
+-- 		name ="itemUpdated",
+-- 		status = "added",
+-- 		type = type,
+-- 		newValue = self.itemBag[type].inventory
+-- 	}
+-- 	self:dispatchEvent(itemUsedEvent)
+-- end
 
-function BulbEnemy:addEventListener(type, object)
-	if (not self.events[type]) then
-		self.events[type] = {}
-	end
-	self.events[type][#self.events[type] + 1] = object
-end
+-- function BulbEnemy:addEventListener(type, object)
+-- 	if (not self.events[type]) then
+-- 		self.events[type] = {}
+-- 	end
+-- 	self.events[type][#self.events[type] + 1] = object
+-- end
 
-function BulbEnemy:removeEventListener(type, object)
-	for k, v in pairs(self.events) do
-		for i=1, #v do
-			self.events[k][i] = nil
-		end
-		self.events[k] = nil
-	end
-end
+-- function BulbEnemy:removeEventListener(type, object)
+-- 	for k, v in pairs(self.events) do
+-- 		for i=1, #v do
+-- 			self.events[k][i] = nil
+-- 		end
+-- 		self.events[k] = nil
+-- 	end
+-- end
 
-function BulbEnemy:dispatchEvent(data)
-	if (self.events[data.name]) then
-		for i=1, #self.events[data.name] do
-			self.events[data.name][i][data.name](self.events[data.name][i], data)
-		end
-	end
-end
+-- function BulbEnemy:dispatchEvent(data)
+-- 	if (self.events[data.name]) then
+-- 		for i=1, #self.events[data.name] do
+-- 			self.events[data.name][i][data.name](self.events[data.name][i], data)
+-- 		end
+-- 	end
+-- end
 
 function BulbEnemy:removeSelf( )
 	if (self.enemyView) then

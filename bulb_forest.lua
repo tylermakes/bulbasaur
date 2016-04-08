@@ -60,7 +60,7 @@ function BulbForest:create(group)
 
 	local mapEnemies = self.map:getEnemies()
 	for i=1, #mapEnemies do
-		local newEnemy = BulbEnemy(self.map, mapEnemies[i])
+		local newEnemy = bulbBuilderSettings:buildEnemy(self.map, mapEnemies[i])
 		newEnemy:create(group) 
 		self.enemies[#self.enemies + 1] = newEnemy
 	end
