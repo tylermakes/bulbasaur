@@ -1,8 +1,8 @@
-require("bulb_home")
+require("bulb_shop")
 
 -----------------------------------------------------------------------------------------
 --
--- bulbasaur_home_scene.lua
+-- bulbasaur_Shop_scene.lua
 --
 -----------------------------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ function scene:create( event )
 	if (not event.params) then
 		event.params = {}
 	end
-	game = BulbHome(display.contentWidth, display.contentHeight, composer)
+	game = BulbShop(display.contentWidth, display.contentHeight, composer)
 	game:create(group, event.params)
 end
 

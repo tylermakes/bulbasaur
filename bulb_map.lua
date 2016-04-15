@@ -16,6 +16,7 @@ BulbMap = class(function(c, width, height, rows, columns)
 	c.navigationTiles = {}
 	c.navigationTiles[1] = {i=1, j=8, nav="bulb_home_scene"}
 	c.navigationTiles[2] = {i=9, j=1, nav="bulb_forest_scene"}
+	c.navigationTiles[3] = {i=16, j=8, nav="bulb_shop_scene"}
 end)
 
 function BulbMap:create(group)

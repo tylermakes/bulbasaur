@@ -21,6 +21,7 @@ BulbForest = class(function(c, width, height, composer,
 	c.navLoc = navLoc
 	c.metaLoc = metaLoc
 	c.prevMetaLoc = prevMetaLoc
+	c.isAlive = true
 end)
 
 function BulbForest:create(group)
@@ -72,6 +73,7 @@ end
 function BulbForest:entered(group)
 	-- triggered when the scene is entered or re-entered
 
+	self.isAlive = true
 	if (not self.ui) then
 		local mapWidth = self.width/5*4
 		local tools = {}
@@ -113,16 +115,24 @@ function BulbForest:enterFrame()
 end
 
 function BulbForest:update()
-	self.map:update()
-	self.player:update()
-	for i=1, #self.enemies do
-		self.enemies[i]:update(self.player) 
-	end
-	if (self.player.playerLocation.i ~= self.lastPlayerLocation.i or
-		self.player.playerLocation.j ~= self.lastPlayerLocation.j) then
-		bulbGameSettings.playerData:updateLocation({x=self.player.playerLocation.i, y=self.player.playerLocation.j})
-		self.lastPlayerLocation = self.player.playerLocation
-		self.map:triggerLocation(self.player.playerLocation)
+	if (self.isAlive) then
+		self.map:update()
+		self.player:update()
+		for i=1, #self.enemies do
+			if (self.enemies[i].location and
+				self.enemies[i].location.i == self.player.playerLocation.i and
+				self.enemies[i].location.j == self.player.playerLocation.j) then
+				self:handleDeath(self.enemies[i])
+				return
+			end
+			self.enemies[i]:update(self.player) 
+		end
+		if (self.player.playerLocation.i ~= self.lastPlayerLocation.i or
+			self.player.playerLocation.j ~= self.lastPlayerLocation.j) then
+			bulbGameSettings.playerData:updateLocation({x=self.player.playerLocation.i, y=self.player.playerLocation.j})
+			self.lastPlayerLocation = self.player.playerLocation
+			self.map:triggerLocation(self.player.playerLocation)
+		end
 	end
 end
 
@@ -159,6 +169,20 @@ function BulbForest:gatherSeeds(event)
 	bulbGameSettings.playerData:addItem(event.seedType, 1, true)
 	local tileInfo = bulbBuilderSettings.dirtType
 	self.map:placeTile(event.location.i, event.location.j, tileInfo)
+end
+
+function BulbForest:handleDeath(enemy)
+	self.isAlive = false
+	local options =
+	{
+		effect = "fade",
+		time = 500,
+		params =
+		{
+			isDead = true
+		}
+	}
+	self.composer.gotoScene("bulb_home_scene", options)
 end
 
 function BulbForest:navigate(event)

@@ -11,6 +11,7 @@ BulbEnemyZombie = class(function(c, map, enemyInfo)
 	c.colorSteps.r = (c.enemy.tileInfo.color.r - 0.6)/c.LIFE_STAGES
 	c.colorSteps.g = (c.enemy.tileInfo.color.g - 0.8)/c.LIFE_STAGES
 	c.colorSteps.b = (c.enemy.tileInfo.color.b - 0.3)/c.LIFE_STAGES
+	c.location = c.enemy.location
 end)
 
 function BulbEnemyZombie:create(group)
@@ -40,6 +41,8 @@ function BulbEnemyZombie:update(player)
 			self.enemy.enemyView:setFillColor( 0.6, 0.7, 0.6)
 		end
 	end
+
+	self.location = self.enemy.location
 end
 
 

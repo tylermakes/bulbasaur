@@ -61,6 +61,26 @@ BulbGameSettings = class(function(c)
 	
 	c.talking = talking
 
+
+	local grandmaSaysDead = {}
+	-- grandmaSays[1] = "I remember maybe 5 years ago I emailed a M.I.T. professor after seeing her on a PBS special talking about AI. I poured my brain into an email to her about my theories on AI development, how machines can be programmed to recognize environments, how emotions can be learned through experience,etc. I spent a good 4 hours writing the email because I felt a connection to this professor’s work. It was an exciting email to write because it was something I was very interested in and I wanted to reach out and talk to someone about it. There was so much hope while I was writing it that maybe I would get a response back and I would have someone to talk to about this kind of stuff, maybe get me started on the path to creating advanced machine AI. Sadly, I never heard back from her…I don’t even know if she read the email."
+	grandmaSaysDead[1] = "Oh thank the heavens! You're awake!"
+	grandmaSaysDead[2] = "I told you not to go out into the forest!"
+	grandmaSaysDead[3] = "What happened?"
+	grandmaSaysDead[4] = "Are you okay?"
+
+	local brotherSaysDead = {}
+	brotherSaysDead[1] = "I was so scared..."
+	brotherSaysDead[2] = "Someone brought you back to us."
+	brotherSaysDead[3] = "Someone or something..."
+	brotherSaysDead[4] = "It was dark and scary. Don't go out into the woods anymore. Please!"
+
+	local talkingDead = {}
+	talkingDead["grandma"] = grandmaSaysDead
+	talkingDead["brother"] = brotherSaysDead
+	
+	c.talkingDead = talkingDead
+
 	-- c.forestStartName = "init";
 	-- c.forestCurrentMap = "init";
 	c.gardenFileName = "garden_data";
@@ -133,6 +153,8 @@ function BulbGameSettings:goToCurrentLocation( composer )
 		composer.gotoScene( "bulb_game_scene" )
 	elseif (bulbGameSettings.playerData.currentLocation == "home") then
 		composer.gotoScene( "bulb_home_scene" )
+	elseif (bulbGameSettings.playerData.currentLocation == "shop") then
+		composer.gotoScene( "bulb_shop_scene" )
 	-- elseif (bulbGameSettings.playerData.currentLocation == "forest") then
 		-- local options =
 		-- {
@@ -331,6 +353,9 @@ function BulbGameSettings:getItemByName(name)
 	return self.types[name]
 end
 
-function BulbGameSettings:getTextByName(name)
+function BulbGameSettings:getTextByName(name, isDead)
+	if (isDead) then
+		return self.talkingDead[name]
+	end
 	return self.talking[name]
 end

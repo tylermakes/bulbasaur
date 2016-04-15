@@ -7,10 +7,12 @@ BulbLivingRoom = class(function(c, width, height)
 	c.characters = {}
 	c.background = nil
 	c.rpgTextBox = nil
+	c.isDead = false
 	c.events = {}
 end)
 
-function BulbLivingRoom:create(group)
+function BulbLivingRoom:create(group, isDead)
+	self.isDead = isDead
 	self:addCharacter(group, "grandma", 30, 75, 150, 260)
 	self:addCharacter(group, "brother", 670, 55, 100, 235)
 	self:addCharacter(group, "exit", 315, 45, 150, 270)
@@ -52,6 +54,10 @@ function BulbLivingRoom:create(group)
 	group:insert(self.background)	
 	group:insert(textObj)
 	group:insert(skipButton)
+end
+
+function BulbLivingRoom:entered(isDead)
+	self.isDead = isDead
 end
 
 function BulbLivingRoom:update()
@@ -99,7 +105,7 @@ function BulbLivingRoom:addCharacter(group, name, x, y, width, height)
 end
 
 function BulbLivingRoom:saySomething(name)
-	self.rpgTextBox:say(bulbGameSettings:getTextByName(name))
+	self.rpgTextBox:say(bulbGameSettings:getTextByName(name, self.isDead))
 end
 
 function BulbLivingRoom:addEventListener(type, object)

@@ -1,9 +1,8 @@
 require("class")
-require("bulb_ui")
+require("bulb_shop_ui")
 require("bulb_player")
-require("bulb_living_room")
 
-BulbHome = class(function(c, width, height, composer)
+BulbShop = class(function(c, width, height, composer)
 	c.width = width
 	c.height = height
 	c.player = nil
@@ -14,46 +13,72 @@ BulbHome = class(function(c, width, height, composer)
 	c.composer = composer
 end)
 
-function BulbHome:create(group, params)
+function BulbShop:create(group, params)
 	local rows = 15
 	local size = self.height/rows
 	local mapWidth = self.width/5*4
 	local columns = math.floor(mapWidth/size)
 
-	self.livingRoom = BulbLivingRoom(mapWidth, self.height, params.isDead)
-	self.livingRoom:create(group)
-	self.livingRoom:addEventListener("navigate", self)
-
-
 	Runtime:addEventListener("enterFrame", self)
 end
 
-function BulbHome:navigate(event)
+function BulbShop:navigate(event)
 	self.composer.gotoScene( "bulb_game_scene", "fade", 500 )
 end
 
-function BulbHome:entered(group, params)
+function BulbShop:createTemporaryExitButton(group)
+	local t = self.composer
+	function leave()
+		t.gotoScene("bulb_game_scene")
+	end
+
+	local itemView = display.newRect( 0, 0, 100, 100 )
+	itemView.anchorX = 0;
+	itemView.anchorY = 0;
+	itemView.x = self.x;
+	itemView.y = self.y;
+	self.itemView = itemView
+	self.itemView:addEventListener("touch", leave)
+
+	-- ADD NAME TEXT
+	local nameViewOptions = {
+		text = "exit",
+		x = 0,
+		y = 0,
+		width = self.width,
+		height = self.height,
+		font = native.systemFont,
+		fontSize = 24, 
+		align = "left"
+	}
+	local nameView = display.newText( nameViewOptions )
+	nameView:setFillColor( 0, 0, 0 )
+	nameView.anchorX = 0;
+	nameView.anchorY = 0;
+	nameView.x = self.x;
+	nameView.y = self.y;
+	self.nameView = nameView
+	group:insert(itemView)
+	group:insert(nameView)
+end
+
+function BulbShop:entered(group, params)
 	-- triggered when the scene is entered or re-entered
 	if (not self.ui) then
 		local mapWidth = self.width/5*4
-		local tools = {}
-		tools[1] = {tileName="exit", color=BulbColor(0.6, 0.6, 0.6)}
-		--tools[1] = {tileName="garden", color=BulbColor(0.8, 0.4, 1)}
-		--tools[2] = {tileName="forest", color=BulbColor(0.7, 0.5, 1)}
-		--tools[2] = {tileName="shovel", color=BulbColor(0.6, 0.6, 0.4)}
-		self.ui = BulbUI(tools, mapWidth, 0, self.width/5, self.height, 10)
+		self.ui = BulbShopUI(0, 0, self.width, self.height, 10)
 		self.ui:addEventListener("selectPlant", self)
 		self.ui:addEventListener("selectTool", self)
 		self.ui:create(group)
+		self:createTemporaryExitButton(group)
 	end
 
-	self.livingRoom:entered(params.isDead)
-	bulbGameSettings.playerData.currentLocation = "home"
+	bulbGameSettings.playerData.currentLocation = "shop"
 --	bulbGameSettings:resetGeneratedMap() -- TODO: fix this!
 	bulbGameSettings:saveGame()
 end
 
-function BulbHome:left( )
+function BulbShop:left( )
 	-- triggered when the scene is entered or re-entered
 	if (self.ui) then
 		self.ui:removeSelf()
@@ -61,20 +86,19 @@ function BulbHome:left( )
 	end
 end
 
-function BulbHome:enterFrame()
+function BulbShop:enterFrame()
 	self:update()
 end
 
-function BulbHome:update()
-	self.livingRoom:update()
+function BulbShop:update()
 end
 
-function BulbHome:selectPlant(data)
+function BulbShop:selectPlant(data)
 	self.state = "planting"
 	self.selectedPlant = data.item
 end
 
-function BulbHome:selectTool(data)
+function BulbShop:selectTool(data)
 	if (data.type == "garden") then
 		self.composer.gotoScene( "bulb_game_scene", "fade", 500 )
 	elseif (data.type == "forest") then
@@ -87,9 +111,9 @@ function BulbHome:selectTool(data)
 	end
 end
 
-function BulbHome:removeSelf()
+function BulbShop:removeSelf()
 	Runtime:removeEventListener("enterFrame", self)
-	print("removing home")
+	print("removing Shop")
 	if (self.livingRoom) then
 		self.livingRoom:removeSelf()
 		self.livingRoom = nil

@@ -6,6 +6,17 @@ BulbPlayerData = class(function(c, map)
 	c.itemBag["blueberries"] = 5
 	c.currentLocation = "garden"
 	c.tileLocation = {x=1, y=1}
+	c.shopItemsAvailable = {}
+	c.shopItemsAvailable[1] = "strawberry"
+	c.shopItemsAvailable[2] = "orange"
+	c.shopItemsAvailable[3] = "avocado"
+	c.shopItemsAvailable[4] = "blueberries"
+	c.shopItemsAvailable[5] = "lemon"
+	c.shopItemsAvailable[6] = "carrots"
+	c.shopItemsAvailable[7] = "beets"
+	c.shopItemsAvailable[8] = "peas"
+	c.shopItemsAvailable[9] = "pineapple"
+	c.shopItemsAvailable[10] = "asparagus"
 
 	c.events ={}
 
@@ -21,6 +32,7 @@ function BulbPlayerData:setupFromGameData(playerData)
 	self.temporaryItems = playerData.temporaryItems
 	self.currentLocation = playerData.currentLocation
 	self.tileLocation = playerData.tileLocation
+	self.shopItemsAvailable = playerData.shopItemsAvailable
 end
 
 function BulbPlayerData:updateLocation( location )
@@ -35,7 +47,8 @@ function BulbPlayerData:getGameData()
 	return {inventory = self.itemBag,
 			temporaryItems = self.temporaryItems,
 			currentLocation = self.currentLocation,
-			tileLocation = self.tileLocation}
+			tileLocation = self.tileLocation,
+			shopItemsAvailable = self.shopItemsAvailable}
 end
 
 function BulbPlayerData:keepTempItems()
