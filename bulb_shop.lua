@@ -66,7 +66,7 @@ function BulbShop:entered(group, params)
 	-- triggered when the scene is entered or re-entered
 	if (not self.ui) then
 		local mapWidth = self.width/5*4
-		self.ui = BulbShopUI(0, 0, self.width, self.height, 10)
+		self.ui = BulbShopUI(0, 0, self.width, self.height, 4, 2)
 		self.ui:addEventListener("selectPlant", self)
 		self.ui:addEventListener("selectTool", self)
 		self.ui:create(group)

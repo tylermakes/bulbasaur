@@ -1,4 +1,5 @@
 require("class")
+local widget = require "widget"
 
 BulbShopItem = class(function(c, x, y, width, height, item, inventory, ui)
 	c.x = x
@@ -6,12 +7,15 @@ BulbShopItem = class(function(c, x, y, width, height, item, inventory, ui)
 	c.width = width
 	c.height = height
 	c.item = item
+	c.buttonHeight = height/5
 	c.ui = ui
 	c.name = c.item.tileName
 	c.inventory = inventory
 	c.itemView = nil
 	c.nameView = nil
 	c.inventoryView = nil
+	c.buyButton = nil
+	c.sellButton = nil
 	-- c.events = {}
 	c.touchStartY = 0
 	c.scrollView = nil
@@ -68,10 +72,46 @@ function BulbShopItem:create(group, scrollView)
 	inventoryView.y = self.y;
 	self.inventoryView = inventoryView
 
+	local buyOrSell = function(event)
+		self.ui:buyingOrSellingFunction(self.name, event.target:getLabel(), self.inventory)
+	end
+
+	-- create a widget button for buying
+	local buyButton = widget.newButton{
+		label="BUY",
+		labelColor = { default={255}, over={128} },
+		fontSize = 36,
+		defaultFile="button.png",
+		overFile="button-over.png",
+		width=self.width, self.buttonHeight,
+		onRelease = buyOrSell	-- event listener function
+	}
+	buyButton.x = self.x + self.width*0.5
+	buyButton.y = self.y + self.height - self.buttonHeight
+	self.buyButton = buyButton
+	---
+
+	-- create a widget button for selling
+	local sellButton = widget.newButton{
+		label="SELL",
+		labelColor = { default={255}, over={128} },
+		fontSize = 36,
+		defaultFile="button.png",
+		overFile="button-over.png",
+		width=self.width, self.buttonHeight,
+		onRelease = buyOrSell	-- event listener function
+	}
+	sellButton.x = self.x + self.width*0.5
+	sellButton.y = self.y + self.height - self.buttonHeight*2
+	self.sellButton = sellButton
+	---
+	
 	self.itemView:addEventListener("touch", self)
 	group:insert(self.itemView)
 	group:insert(self.nameView)
 	group:insert(self.inventoryView)
+	group:insert(self.buyButton)
+	group:insert(self.sellButton)
 end
 
 function BulbShopItem:updateInventory( newValue )
@@ -91,10 +131,10 @@ function BulbShopItem:touch(event)
 	elseif (event.phase == "ended") then
 		destination.x = event.x;
 		destination.y = event.y;
-		self.ui:plantingFunction(self.item)
 	end
 	return true
 end
+
 
 function BulbShopItem:removeSelf( )
 	if (self.nameView) then
@@ -108,6 +148,14 @@ function BulbShopItem:removeSelf( )
 	if (self.itemView) then
 		self.itemView:removeSelf()
 		self.itemView = nil
+	end
+	if (self.buyButton) then
+		self.buyButton:removeSelf()
+		self.buyButton = nil
+	end
+	if (self.sellButton) then
+		self.sellButton:removeSelf()
+		self.sellButton = nil
 	end
 	if (self.scrollView) then
 		self.scrollView = nil

@@ -1,21 +1,26 @@
 require("class")
 require("bulb_shop_item")
+require("bulb_shop_popup")
 require("bulb_color")
 local widget = require "widget"
 
-BulbShopUI = class(function(c, x, y, width, height, itemNumber)
+BulbShopUI = class(function(c, x, y, width, height, columns, rows)
 	c.x = x
 	c.y = y
 	c.width = width
 	c.height = height
-	c.itemNumber = itemNumber
-	c.itemWidth = width/itemNumber
+	c.rows = rows
+	c.columns = columns
+	c.itemWidth = width/columns
+	c.itemHeight = height/rows
 	c.items = nil
+	c.shopPopup = nil
+	c.uiDisplayGroup = nil
 	c.events = {}
-	c.totalUniqueShopItems = 0
 end)
 
 function BulbShopUI:create(group)
+	self.uiDisplayGroup = display.newGroup()
 
 	local scrollView = widget.newScrollView( {
 			width = self.width,
@@ -33,21 +38,23 @@ function BulbShopUI:create(group)
 	self.items = {}
 	local itemHolder = bulbGameSettings.playerData.shopItemsAvailable
 	print(#itemHolder)
-	self.totalUniqueShopItems = 0
 	for i, v in ipairs(itemHolder) do
-		self:addShopItem(v, 9)
-		self.totalUniqueShopItems = self.totalUniqueShopItems + 1
+		self:addShopItem(v, 9, i)
 	end
 
-	group:insert(self.scrollView)
+	self.uiDisplayGroup:insert(self.scrollView)
+	group:insert(self.uiDisplayGroup)
 	
 	bulbGameSettings.playerData:addEventListener("itemUpdated", self)
 end
 
-function BulbShopUI:addShopItem(name, inventory)
-	local x = self.x + (self.totalUniqueShopItems * self.itemWidth) + self.itemWidth
+function BulbShopUI:addShopItem(name, inventory, numberInStore)
+	local itemColumn = numberInStore % self.rows
+	local itemRow = math.floor(numberInStore / self.rows)
+	local y = self.y + itemColumn * self.itemHeight
+	local x = self.x + itemRow * self.itemWidth
 	local item = bulbGameSettings:getItemByName(name)
-	local bulbShopItem = BulbShopItem(x, 0, self.itemWidth, self.height, item,
+	local bulbShopItem = BulbShopItem(x, y, self.itemWidth, self.itemHeight, item,
 							inventory, self)
 	bulbShopItem:create(self.scrollView, self.scrollView)
 	self.items[name] = bulbShopItem
@@ -75,13 +82,35 @@ function BulbShopUI:dispatchEvent(data)
 	end
 end
 
-function BulbShopUI:plantingFunction(item)
-	plantEvent = {
-		name = "selectPlant",
-		item = item
-	}
+function BulbShopUI:acceptShopPopup(evt)
+	self:clearShopPopup()
+	print("ACCEPTING:", evt.item, " : ", evt.action)
+end
 
-	BulbShopUI.dispatchEvent(self, plantEvent)
+function BulbShopUI:clearShopPopup()
+	if (self.shopPopup) then
+		self.shopPopup:removeSelf()
+		self.shopPopup = nil
+	end
+end
+
+function BulbShopUI:buyingOrSellingFunction(item, action, total, cost)
+	print(action, ":", item, ", ", total)
+
+	local popupTitle = action..": "..item.."?"
+
+	self:clearShopPopup()
+	self.shopPopup = BulbShopPopup(self.width, self.height, popupTitle, item, action, total, cost)
+	self.shopPopup:create(self.uiDisplayGroup)
+	self.shopPopup:addEventListener("acceptShopPopup", self)
+	self.shopPopup:addEventListener("clearShopPopup", self)
+
+	-- plantEvent = {
+	-- 	name = "selectPlant",
+	-- 	item = item
+	-- }
+
+	-- BulbShopUI.dispatchEvent(self, plantEvent)
 end
 
 function BulbShopUI:removeAllEventListeners( )
@@ -106,6 +135,10 @@ function BulbShopUI:removeSelf()
 	if (self.scrollView) then
 		self.scrollView:removeSelf()
 		self.scrollView = nil
+	end
+	if (self.uiDisplayGroup) then
+		self.uiDisplayGroup:removeSelf()
+		self.uiDisplayGroup = nil
 	end
 	self:removeAllEventListeners()
 end
