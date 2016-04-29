@@ -18,6 +18,8 @@ BulbPlayerData = class(function(c, map)
 	c.shopItemsAvailable[9] = "pineapple"
 	c.shopItemsAvailable[10] = "asparagus"
 
+	c.money = 0
+
 	c.events ={}
 
 	c.diedInForest = false;
@@ -33,6 +35,7 @@ function BulbPlayerData:setupFromGameData(playerData)
 	self.currentLocation = playerData.currentLocation
 	self.tileLocation = playerData.tileLocation
 	self.shopItemsAvailable = playerData.shopItemsAvailable
+	self.money = playerData.money
 end
 
 function BulbPlayerData:updateLocation( location )
@@ -48,7 +51,8 @@ function BulbPlayerData:getGameData()
 			temporaryItems = self.temporaryItems,
 			currentLocation = self.currentLocation,
 			tileLocation = self.tileLocation,
-			shopItemsAvailable = self.shopItemsAvailable}
+			shopItemsAvailable = self.shopItemsAvailable,
+			money = self.money}
 end
 
 function BulbPlayerData:keepTempItems()
@@ -106,7 +110,11 @@ function BulbPlayerData:addItem(type, num, temporary)
 		self.temporaryItems[type] = self.temporaryItems[type] + num
 		newValue = self.temporaryItems[type]
 	else
-		self.itemBag[type] = self.itemBag[type] + num
+		if (self.itemBag[type]) then
+			self.itemBag[type] = self.itemBag[type] + num
+		else
+			self.itemBag[type] = num
+		end
 		newValue = self.itemBag[type]
 	end
 	itemUsedEvent = {
@@ -119,6 +127,16 @@ function BulbPlayerData:addItem(type, num, temporary)
 	
 	bulbGameSettings:saveGame()
 	self:dispatchEvent(itemUsedEvent)
+end
+
+function BulbPlayerData:addMoney(amt)
+	self.money = self.money + amt
+	print("new money:", self.money)
+	bulbGameSettings:saveGame()
+end
+
+function BulbPlayerData:subtractMoney(amt)
+	self:addMoney(-amt)
 end
 
 function BulbPlayerData:addEventListener(type, object)

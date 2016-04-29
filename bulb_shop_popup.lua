@@ -1,7 +1,7 @@
 require("class")
 local widget = require "widget"
 
-BulbShopPopup = class(function(c, width, height, label, item, action, total, cost)
+BulbShopPopup = class(function(c, width, height, label, item, action, total, cost, worth)
 	c.x = width*0.05
 	c.y = height*0.05
 	c.width = width*0.9
@@ -9,9 +9,11 @@ BulbShopPopup = class(function(c, width, height, label, item, action, total, cos
 	c.buttonHeight = 20
 	c.label = label
 	c.item = item
-	c.amount = 1
+	c.amount = 0
 	c.total = total
+	print("item:", cost, ",", worth)
 	c.cost = cost
+	c.worth = worth
 	c.itemView = nil
 	c.labelView = nil
 	c.amountView = nil
@@ -73,6 +75,10 @@ function BulbShopPopup:create(group)
 			if (self.amount < self.total) then
 				self:alterAmount(1)
 			end
+		elseif (self.action == "BUY") then
+			if ((self.amount + 1) * self.cost < bulbGameSettings.playerData.money) then
+				self:alterAmount(1)
+			end
 		else
 			self:alterAmount(1)
 		end
@@ -94,7 +100,7 @@ function BulbShopPopup:create(group)
 	---
 
 	local decrease = function()
-		if (self.amount > 1) then
+		if (self.amount > 0) then
 			self:alterAmount(-1)
 		end
 	end
@@ -164,7 +170,10 @@ function BulbShopPopup:accept()
 	local acceptStoreActionEvent = {
 		name = "acceptShopPopup",
 		item = self.item,
-		action = self.action
+		cost = self.cost,
+		worth = self.worth,
+		amount = self.amount,
+		action = self.action,
 	}
 
 	self:dispatchEvent(acceptStoreActionEvent);

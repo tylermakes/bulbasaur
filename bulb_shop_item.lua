@@ -7,12 +7,16 @@ BulbShopItem = class(function(c, x, y, width, height, item, inventory, ui)
 	c.width = width
 	c.height = height
 	c.item = item
+	c.cost = item.cost
+	c.worth = item.cost/2
 	c.buttonHeight = height/5
 	c.ui = ui
 	c.name = c.item.tileName
 	c.inventory = inventory
 	c.itemView = nil
 	c.nameView = nil
+	c.costView = nil
+	c.worthView = nil
 	c.inventoryView = nil
 	c.buyButton = nil
 	c.sellButton = nil
@@ -72,8 +76,46 @@ function BulbShopItem:create(group, scrollView)
 	inventoryView.y = self.y;
 	self.inventoryView = inventoryView
 
+	-- ADD COST TEXT
+	local costViewOptions = {
+		text = self.cost,
+		x = 0,
+		y = 0,
+		width=150, height=50,
+		font = native.systemFont,
+		fontSize = 24, 
+		align = "right"
+	}
+	local costView = display.newText( costViewOptions )
+	costView:setFillColor( 0, 0, 0)
+	costView.x = self.x + self.width*0.5;
+	costView.y = self.y + self.height - self.buttonHeight;
+	self.costView = costView
+
+	-- ADD WORTH TEXT
+	local worthViewOptions = {
+		text = self.worth,
+		x = 0,
+		y = 0,
+		width=150, height=50,
+		font = native.systemFont,
+		fontSize = 24, 
+		align = "right"
+	}
+	local worthView = display.newText( worthViewOptions )
+	worthView:setFillColor( 0, 0, 0)
+	worthView.x = self.x + self.width*0.5;
+	worthView.y = self.y + self.height - self.buttonHeight*2;
+	self.worthView = worthView
+
+	-- CREATE WIDGETS FOR BUYING AND SELLING
 	local buyOrSell = function(event)
-		self.ui:buyingOrSellingFunction(self.name, event.target:getLabel(), self.inventory)
+		self.ui:buyingOrSellingFunction(self.name,
+			event.target:getLabel(),
+			self.inventory,
+			self.cost,
+			self.worth)
+		return true
 	end
 
 	-- create a widget button for buying
@@ -83,10 +125,10 @@ function BulbShopItem:create(group, scrollView)
 		fontSize = 36,
 		defaultFile="button.png",
 		overFile="button-over.png",
-		width=self.width, self.buttonHeight,
+		width=150, height=50,
 		onRelease = buyOrSell	-- event listener function
 	}
-	buyButton.x = self.x + self.width*0.5
+	buyButton.x = self.x + self.width*0.3
 	buyButton.y = self.y + self.height - self.buttonHeight
 	self.buyButton = buyButton
 	---
@@ -98,39 +140,49 @@ function BulbShopItem:create(group, scrollView)
 		fontSize = 36,
 		defaultFile="button.png",
 		overFile="button-over.png",
-		width=self.width, self.buttonHeight,
+		width=150, height=50,
 		onRelease = buyOrSell	-- event listener function
 	}
-	sellButton.x = self.x + self.width*0.5
+	sellButton.x = self.x + self.width*0.3
 	sellButton.y = self.y + self.height - self.buttonHeight*2
 	self.sellButton = sellButton
 	---
 	
-	self.itemView:addEventListener("touch", self)
+	-- self.itemView:addEventListener("touch", self)
 	group:insert(self.itemView)
 	group:insert(self.nameView)
 	group:insert(self.inventoryView)
+	group:insert(self.costView)
+	group:insert(self.worthView)
 	group:insert(self.buyButton)
 	group:insert(self.sellButton)
 end
 
 function BulbShopItem:updateInventory( newValue )
-	self.inventoryView.text = newValue
 	self.inventory = newValue
+	self.inventoryView.text = newValue
 end
 
 function BulbShopItem:touch(event)
 	local destination = {}
 	
 	if ( event.phase == "began" ) then
-		self.touchStartY = event.y;
+		self.touchStartY = event.y
+		self.isFocused = true
 	elseif (event.phase == "moved") then
 		if (self.scrollView and math.abs(self.touchStartY - event.y) > self.height/2) then
 			self.scrollView:takeFocus( event )
+			self.isFocused = false
+			print("move focus")
 		end
 	elseif (event.phase == "ended") then
-		destination.x = event.x;
-		destination.y = event.y;
+		destination.x = event.x
+		destination.y = event.y
+		if (not self.isFocused or
+			(self.scrollView and math.abs(self.touchStartY - event.y) > self.height/2)) then
+			self.scrollView:takeFocus( event )
+			print("end focus")
+		end
 	end
 	return true
 end
@@ -144,6 +196,14 @@ function BulbShopItem:removeSelf( )
 	if (self.inventoryView) then
 		self.inventoryView:removeSelf()
 		self.inventoryView = nil
+	end
+	if (self.costView) then
+		self.costView:removeSelf()
+		self.costView = nil
+	end
+	if (self.worthView) then
+		self.worthView:removeSelf()
+		self.worthView = nil
 	end
 	if (self.itemView) then
 		self.itemView:removeSelf()

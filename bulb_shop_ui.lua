@@ -1,5 +1,6 @@
 require("class")
 require("bulb_shop_item")
+require("bulb_shop_player_display")
 require("bulb_shop_popup")
 require("bulb_color")
 local widget = require "widget"
@@ -15,6 +16,7 @@ BulbShopUI = class(function(c, x, y, width, height, columns, rows)
 	c.itemHeight = height/rows
 	c.items = nil
 	c.shopPopup = nil
+	c.playerDisplay = nil
 	c.uiDisplayGroup = nil
 	c.events = {}
 end)
@@ -39,23 +41,28 @@ function BulbShopUI:create(group)
 	local itemHolder = bulbGameSettings.playerData.shopItemsAvailable
 	print(#itemHolder)
 	for i, v in ipairs(itemHolder) do
-		self:addShopItem(v, 9, i)
+		self:addShopItem(v, i)
 	end
 
 	self.uiDisplayGroup:insert(self.scrollView)
 	group:insert(self.uiDisplayGroup)
+
+	local playerDisplay = BulbShopPlayerDisplay(self.width - 400, self.height - 50, 400, 50)
+	playerDisplay:create(group)
+	self.playerDisplay = playerDisplay
 	
 	bulbGameSettings.playerData:addEventListener("itemUpdated", self)
 end
 
-function BulbShopUI:addShopItem(name, inventory, numberInStore)
+function BulbShopUI:addShopItem(name, numberInStore)
 	local itemColumn = numberInStore % self.rows
 	local itemRow = math.floor(numberInStore / self.rows)
 	local y = self.y + itemColumn * self.itemHeight
 	local x = self.x + itemRow * self.itemWidth
 	local item = bulbGameSettings:getItemByName(name)
-	local bulbShopItem = BulbShopItem(x, y, self.itemWidth, self.itemHeight, item,
-							inventory, self)
+	local inventory = bulbGameSettings.playerData.itemBag[name] or 0
+	local bulbShopItem = BulbShopItem(x, y, self.itemWidth, self.itemHeight,
+							item, inventory, self)
 	bulbShopItem:create(self.scrollView, self.scrollView)
 	self.items[name] = bulbShopItem
 end
@@ -84,7 +91,20 @@ end
 
 function BulbShopUI:acceptShopPopup(evt)
 	self:clearShopPopup()
-	print("ACCEPTING:", evt.item, " : ", evt.action)
+	if (evt.amount > 0) then
+		if (evt.action == "SELL") then
+			bulbGameSettings.playerData:addMoney(evt.amount * evt.worth)
+			bulbGameSettings.playerData:deductItem(evt.item, evt.amount)
+		elseif (evt.action == "BUY") then
+			bulbGameSettings.playerData:subtractMoney(evt.amount * evt.cost)
+			bulbGameSettings.playerData:addItem(evt.item, evt.amount)
+		end
+		self:updatePlayerDisplay()
+	end
+end
+
+function BulbShopUI:updatePlayerDisplay()
+	self.playerDisplay:update()
 end
 
 function BulbShopUI:clearShopPopup()
@@ -94,13 +114,13 @@ function BulbShopUI:clearShopPopup()
 	end
 end
 
-function BulbShopUI:buyingOrSellingFunction(item, action, total, cost)
-	print(action, ":", item, ", ", total)
+function BulbShopUI:buyingOrSellingFunction(item, action, total, cost, worth)
+	print(action, ":", item, ", ", total, " c:", cost, " w:", worth)
 
 	local popupTitle = action..": "..item.."?"
 
 	self:clearShopPopup()
-	self.shopPopup = BulbShopPopup(self.width, self.height, popupTitle, item, action, total, cost)
+	self.shopPopup = BulbShopPopup(self.width, self.height, popupTitle, item, action, total, cost, worth)
 	self.shopPopup:create(self.uiDisplayGroup)
 	self.shopPopup:addEventListener("acceptShopPopup", self)
 	self.shopPopup:addEventListener("clearShopPopup", self)
@@ -135,6 +155,10 @@ function BulbShopUI:removeSelf()
 	if (self.scrollView) then
 		self.scrollView:removeSelf()
 		self.scrollView = nil
+	end
+	if (self.playerDisplay) then
+		self.playerDisplay:removeSelf()
+		self.playerDisplay = nil
 	end
 	if (self.uiDisplayGroup) then
 		self.uiDisplayGroup:removeSelf()
