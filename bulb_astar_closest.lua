@@ -31,7 +31,7 @@ function BulbAStarClosest:getLocationFromTable(table, location)
 	return table[location.i][location.j]
 end
 
-function BulbAStarClosest:getPath(start, goal, map)
+function BulbAStarClosest:getPath(start, goal, map, isPlayer)
 	self:reset()
 
 	self.frontier:put(start,0)
@@ -41,7 +41,7 @@ function BulbAStarClosest:getPath(start, goal, map)
 	local current = self.frontier:pop().v
 
 	while (current ~= nil) do
-		for i,nextNeighbor in ipairs(map:getNeighbors(current)) do
+		for i,nextNeighbor in ipairs(map:getNeighbors(current, isPlayer)) do
 			local newCost = self:getLocationFromTable(self.costSoFar, current) + map:getCost(current, nextNeighbor)
 			local neighborCostSoFar = self:getLocationFromTable(self.costSoFar, nextNeighbor)
 			if ((neighborCostSoFar == nil) or newCost < neighborCostSoFar) then

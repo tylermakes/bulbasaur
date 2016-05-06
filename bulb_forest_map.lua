@@ -173,7 +173,7 @@ function BulbForestMap:convertDisplayLocationToMapLocation( locationObject )
 	return displayLocation;
 end
 
-function BulbForestMap:getNeighbors( location )
+function BulbForestMap:getNeighbors( location, isPlayer)
 	local newLocations = {}
 	newLocations[#newLocations + 1] = {i=location.i-1, j=location.j} --left
 	newLocations[#newLocations + 1] = {i=location.i+1, j=location.j} --right
@@ -182,7 +182,10 @@ function BulbForestMap:getNeighbors( location )
 
 	local neighbors = {}
 	for i=1, #newLocations do
-		if (self:openToPlayer(newLocations[i])) then
+		if (
+				(isPlayer and self:openToPlayer(newLocations[i])) or
+				((not isPlayer) and self:openToEnemy(newLocations[i]))
+			) then
 			neighbors[#neighbors + 1] = newLocations[i]
 		end
 	end
@@ -218,6 +221,16 @@ function BulbForestMap:openToPlayer(location)
 	local tile = self:getTile(location)
 	local open = false
 	if (tile ~= nil and tile.tileInfo.walkable) then
+		open = tile.tileInfo.walkable > 0
+	end
+
+	return open
+end
+
+function BulbForestMap:openToEnemy(location)
+	local tile = self:getTile(location)
+	local open = false
+	if (tile ~= nil and tile.tileInfo.walkable and tile.tileInfo.enemyWalkable) then
 		open = tile.tileInfo.walkable > 0
 	end
 

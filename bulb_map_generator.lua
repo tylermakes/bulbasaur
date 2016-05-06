@@ -1,4 +1,8 @@
 require("class")
+require("bulb_map_strategy1")
+require("bulb_map_strategy2")
+require("bulb_map_strategy3")
+require("bulb_map_strategy4")
 
 BulbMapGenerator = class(function(c)
 end)
@@ -6,7 +10,27 @@ end)
 -- previousLocation = {x, y (tile where you navigated from), name (map name)}
 -- currentLocation = {x, y (the meta tile location you're generating)}
 function BulbMapGenerator:generateMap( rows, columns, tileSize, previousLocation, currentLocation )
-	return self:generateSpecialMap( rows, columns, tileSize, previousLocation, currentLocation )
+
+	local distance = math.abs(currentLocation.x - 1) + math.abs(currentLocation.y - 1)
+	if (distance < 2) then
+		print("strategy: 1")
+		local strategy = BulbMapStrategy1()
+		return strategy:generateMap( self, rows, columns, tileSize, previousLocation, currentLocation )
+	elseif (distance < 4) then
+		print("strategy: 2")
+		local strategy = BulbMapStrategy2()
+		return strategy:generateMap( self, rows, columns, tileSize, previousLocation, currentLocation )
+	elseif (distance < 6) then
+		print("strategy: 3")
+		local strategy = BulbMapStrategy3()
+		return strategy:generateMap( self, rows, columns, tileSize, previousLocation, currentLocation )
+	else
+		print("strategy: 4")
+		local strategy = BulbMapStrategy4()
+		return strategy:generateMap( self, rows, columns, tileSize, previousLocation, currentLocation )
+	end
+	
+	--return self:generateSpecialMap( rows, columns, tileSize, previousLocation, currentLocation )
 -- 	print("generated a map")
 -- 	print("\tprev:", previousLocation.x, previousLocation.y, previousLocation.name)
 -- 	print("\tcur:", currentLocation.x, currentLocation.y)
@@ -27,56 +51,6 @@ function BulbMapGenerator:generateMap( rows, columns, tileSize, previousLocation
 -- 	self:buildNavPoints(map, rows, columns, previousLocation, currentLocation)
 
 -- 	return map
-end
-
-function BulbMapGenerator:generateSpecialMap( rows, columns, tileSize, previousLocation, currentLocation )
-	local map = {}
-	local forestTile = {}
-
-	local notWalkableTypes = {}
-	-- notWalkableTypes[1] = 2
-	-- notWalkableTypes[2] = 3
-	notWalkableTypes[1] = 8
-
-	local regularTerrainTypes = {}
-	-- regularTerrainTypes[1] = 13
-	-- regularTerrainTypes[2] = 10
-	regularTerrainTypes[1] = 6
-
-	local enemyTypes = {}
-	-- enemyTypes[1] = 4
-	-- enemyTypes[2] = 5
-	-- enemyTypes[3] = 11
-	enemyTypes[1] = 14
-
-	local entireTileSet = {}
-	for m=1, columns*rows do
-		if (m < (math.random()*4)) then
-			entireTileSet[m] = {tileName = self:randomTile(enemyTypes).tileName, customData = {}}
-		elseif (m < 16*3) then
-			entireTileSet[m] = {tileName = self:randomTile(notWalkableTypes).tileName, customData = {}}
-		else
-			entireTileSet[m] = {tileName = self:randomTile(regularTerrainTypes).tileName, customData = {}}
-		end
-	end
-
-	map.layers = {}
-	map.layers[1] = {}
-	for i=1, columns do
-		map.layers[1][i] = {}
-		for j=1, rows do
-			--map.layers[1][i][j] = {tileName = self.tileInfo.tileName, customData = {nav = self.nav}}
-			--map.layers[1][i][j] = {tileName = self:randomTile(validTypes).tileName, customData = {}}
-			local tileNum = math.floor(math.random() * #entireTileSet) + 1
-			map.layers[1][i][j] = entireTileSet[tileNum]
-			table.remove(entireTileSet, tileNum)
-		end
-	end
-
-	--self:buildRandomNavs(map, rows, columns, previousLocation, currentLocation)
-	self:buildNavPoints(map, rows, columns, previousLocation, currentLocation)
-
-	return map
 end
 
 function BulbMapGenerator:generateDifferentiatedMap( rows, columns, tileSize, previousLocation, currentLocation )

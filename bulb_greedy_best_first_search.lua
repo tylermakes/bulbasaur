@@ -29,7 +29,7 @@ function BulbGreedyBestFirstSearch:getLocationFromTable(table, location)
 	return table[location.i][location.j]
 end
 
-function BulbGreedyBestFirstSearch:getPath(start, goal, map)
+function BulbGreedyBestFirstSearch:getPath(start, goal, map, isPlayer)
 	self:reset()
 
 	self.frontier:put(start,0)
@@ -38,7 +38,7 @@ function BulbGreedyBestFirstSearch:getPath(start, goal, map)
 	local current = self.frontier:pop().v
 
 	while (current ~= nil) do
-		for i,nextNeighbor in ipairs(map:getNeighbors(current)) do
+		for i,nextNeighbor in ipairs(map:getNeighbors(current, isPlayer)) do
 			if (not self:getLocationFromTable(self.cameFrom, nextNeighbor)) then
 				local priority = map:heuristic(goal, nextNeighbor)
 				self.frontier:put(nextNeighbor, priority)

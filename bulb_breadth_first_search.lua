@@ -21,7 +21,7 @@ function BulbBreadthFirstSearch:insertIntoCameFrom(location, value)
 	self.cameFrom[location.i][location.j] = value
 end
 
-function BulbBreadthFirstSearch:getPath(start, goal, map)
+function BulbBreadthFirstSearch:getPath(start, goal, map, isPlayer)
 	self:reset()
 
 	self.frontier[#self.frontier + 1] = start
@@ -29,7 +29,7 @@ function BulbBreadthFirstSearch:getPath(start, goal, map)
 
 	while (#self.frontier >= 1) do
 		local current = table.remove(self.frontier, 1)
-		for i,nextNeighbor in ipairs(map:getNeighbors(current)) do
+		for i,nextNeighbor in ipairs(map:getNeighbors(current, isPlayer)) do
 			if (not self.cameFrom[nextNeighbor.i] or not self.cameFrom[nextNeighbor.i][nextNeighbor.j]) then
 				self.frontier[#self.frontier + 1] = nextNeighbor
 				self:insertIntoCameFrom(nextNeighbor, current)

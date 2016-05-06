@@ -43,6 +43,11 @@ function BulbPlayer:update()
 			if (self.map:openToPlayer(newLocation)) then
 				self.oldLocation = self.playerLocation
 				self.playerLocation = newLocation
+				if (self.map:getTile(newLocation).tileInfo.enemyWalkable == nil) then
+					self.playerView:setFillColor(0.5, 0.4, 0)
+				else 
+					self.playerView:setFillColor(1, 0.8, 0)
+				end
 				self:startTransition()
 			end
 			--self:updateViewLocation()
@@ -99,7 +104,7 @@ end
 
 function BulbPlayer:setTargetLocation(event)
 	local targetLocation = {i=event.x, j=event.y}
-	local path = self.aStar:getPath(self.playerLocation, targetLocation, self.map)
+	local path = self.aStar:getPath(self.playerLocation, targetLocation, self.map, true)
 	if (path) then
 		self.playerTargetLocation = targetLocation
 		self.playerReversePath = path

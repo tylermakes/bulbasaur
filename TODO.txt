@@ -1,3 +1,12 @@
+-cauldron that progresses the game
+-story progression from the cauldron and "deaths"
+-cleanup exit buttons
+-make UI for the money throughout the game
+-new enemies?
+-if enemy can't path to the player, stop trying until the player moves
+-if the player has moved, at some point, the enemy should re-path to the player
+-fix the "first two maps are the same" problem
+
 - MORE MAP STUFF:
 	in order to have the forest generated as we want, we need to navigate
 	by metaLocation. If the map is already saved, use the saved one. If the
@@ -32,3 +41,5 @@ DONE:
 !-start new game
 !exit button
 !save\load your current location (home, forest, garden)
+!add bush to hide in
+!more procedurally generated levels

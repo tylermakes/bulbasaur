@@ -1,22 +1,22 @@
 require("class")
 
--- AI Strategy 3
--- go to the player
+-- AI Strategy 5
+-- go to the player. if impossible, go to random
 
-BulbAIStrategy3 = class(function(c)
+BulbAIStrategy5 = class(function(c)
 	c.map = nil
 	c.enemy = nil
 	c.goingLeft = true
 	c.reversePath = nil
 end)
 
-function BulbAIStrategy3:create(map, enemy)
+function BulbAIStrategy5:create(map, enemy)
 	self.map = map
 	self.enemy = enemy
 	self.reversePath = nil
 end
 
-function BulbAIStrategy3:getNextLocation(player)
+function BulbAIStrategy5:getNextLocation(player)
 	if (self.reversePath and #self.reversePath >= 1) then
 		local newLocation = table.remove(self.reversePath)
 		if (self.map:openToEnemy(newLocation)) then
@@ -39,7 +39,7 @@ function BulbAIStrategy3:getNextLocation(player)
 	end
 end
 
-function BulbAIStrategy3:closestLocationToPlayer(player)
+function BulbAIStrategy5:closestLocationToPlayer(player)
 	return {i=player.playerLocation.i, j=player.playerLocation.j}
 
 	-- TODO: Figure out why we were stopping the enemies next to the player...
@@ -56,13 +56,22 @@ function BulbAIStrategy3:closestLocationToPlayer(player)
 	-- end
 end
 
-function BulbAIStrategy3:getPathToPlayer(player)
+function BulbAIStrategy5:getPathToPlayer(player)
 	local closestLocation = self:closestLocationToPlayer(player)
 
 	local path = globalAStar:getPath(self.enemy.location, closestLocation, self.map, false)
 	if (path) then
 		self.reversePath = path
 	else
-		print("enemy could not path to location")
+		--print("enemy could not path to location")
+		-- if we can't path to the player, path to a random place
+		local path = globalAStar:getPath(self.enemy.location, 
+									{i=math.floor(math.random()*self.map.columns+1),
+										j=math.floor(math.random()*self.map.rows+1)},
+									self.map, false)
+		if (path) then
+			self.reversePath = path
+		end
+
 	end
 end

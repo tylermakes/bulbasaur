@@ -50,7 +50,7 @@ function BulbEnemy:update(player)
 		elseif (newLocation.j > self.targetLocation.j) then
 			newLocation.j = newLocation.j - 1
 		end
-		if (self.map:openToPlayer(newLocation)) then
+		if (self.map:openToEnemy(newLocation)) then
 			self.oldLocation = self.location
 			self.location = newLocation
 			self:startTransition()

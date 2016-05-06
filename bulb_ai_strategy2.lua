@@ -22,7 +22,7 @@ function BulbAIStrategy2:getNextLocation()
 		newLocation.j = newLocation.j + 1
 	end
 
-	if (self.map:openToPlayer(newLocation)) then
+	if (self.map:openToEnemy(newLocation)) then
 		return newLocation
 	else
 		self.goingUp = not self.goingUp
