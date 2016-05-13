@@ -6,11 +6,8 @@
 -if enemy can't path to the player, stop trying until the player moves
 -if the player has moved, at some point, the enemy should re-path to the player
 -fix the "first two maps are the same" problem
+-fix the issue where moving up shows you at the top? no bottom exit? bug?
 
-- MORE MAP STUFF:
-	in order to have the forest generated as we want, we need to navigate
-	by metaLocation. If the map is already saved, use the saved one. If the
-	map metaLocation is not already saved, generate a new one and save it.
 
 -cache maps so we don't always load from file?
 
@@ -43,3 +40,8 @@ DONE:
 !save\load your current location (home, forest, garden)
 !add bush to hide in
 !more procedurally generated levels
+
+!- MORE MAP STUFF:
+	in order to have the forest generated as we want, we need to navigate
+	by metaLocation. If the map is already saved, use the saved one. If the
+	map metaLocation is not already saved, generate a new one and save it.

@@ -2,6 +2,7 @@ require("class")
 require("bulb_ui")
 require("bulb_player")
 require("bulb_living_room")
+require("bulb_cauldron")
 
 BulbHome = class(function(c, width, height, composer)
 	c.width = width
@@ -9,7 +10,8 @@ BulbHome = class(function(c, width, height, composer)
 	c.player = nil
 	c.ui = nil
 	c.state = "nothing"
-	c.selectedPlant = nil
+	c.cauldron = nil
+	c.cauldronSelector = nil
 	c.selectTool = nil
 	c.composer = composer
 end)
@@ -17,15 +19,45 @@ end)
 function BulbHome:create(group, params)
 	local rows = 15
 	local size = self.height/rows
-	local mapWidth = self.width/5*4
-	local columns = math.floor(mapWidth/size)
+	local livingRoomWidth = self.width/5*4
+	local columns = math.floor(livingRoomWidth/size)
 
-	self.livingRoom = BulbLivingRoom(mapWidth, self.height, params.isDead)
+	self.livingRoom = BulbLivingRoom(livingRoomWidth, self.height, params.isDead)
 	self.livingRoom:create(group)
 	self.livingRoom:addEventListener("navigate", self)
 
+	self:makeCauldron(group, livingRoomWidth)
 
 	Runtime:addEventListener("enterFrame", self)
+end
+
+function BulbHome:openCauldron( )
+
+end
+
+function BulbHome:makeCauldron( group, livingRoomWidth )
+	
+	local function touchCauldron(event)
+		if ( event.phase == "began" ) then
+			self:openCauldron()
+			return
+		end
+	end
+
+	local cauldronSelector = display.newRect(0, 0, 230, 200)
+	cauldronSelector:setFillColor(0, 0, 0)
+	cauldronSelector.anchorX = 0
+	cauldronSelector.anchorY = 0
+	cauldronSelector.x = 90
+	cauldronSelector.y = 250
+	group:insert(cauldronSelector)
+
+	local cauldron = BulbCauldron(40, 40, livingRoomWidth - 80, self.height - 80)
+	cauldron:create(group)
+	self.cauldron = cauldron
+
+	cauldronSelector:addEventListener("touch", touchCauldron)
+	self.cauldronSelector = cauldronSelector
 end
 
 function BulbHome:navigate(event)
@@ -71,7 +103,7 @@ end
 
 function BulbHome:selectPlant(data)
 	self.state = "planting"
-	self.selectedPlant = data.item
+	self.cauldron:selectPlant(data.item)
 end
 
 function BulbHome:selectTool(data)
@@ -90,6 +122,14 @@ end
 function BulbHome:removeSelf()
 	Runtime:removeEventListener("enterFrame", self)
 	print("removing home")
+	if (self.cauldron) then
+		self.cauldron:removeSelf()
+		self.cauldron = nil
+	end
+	if (self.cauldronSelector) then
+		self.cauldronSelector:removeSelf()
+		self.cauldronSelector = nil
+	end
 	if (self.livingRoom) then
 		self.livingRoom:removeSelf()
 		self.livingRoom = nil
